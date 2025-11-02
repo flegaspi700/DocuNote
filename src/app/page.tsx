@@ -182,10 +182,11 @@ export default function Home() {
     setMessages(conversation.messages);
     setFiles(conversation.sources);
     setAiTheme(conversation.aiTheme || null);
-    setCurrentConversationIdState(conversation.id);
-    setCurrentConversationId(conversation.id);
+    // Update title BEFORE setting conversation ID to avoid stale ref in auto-save effect
     setConversationTitle(conversation.title);
     conversationTitleRef.current = conversation.title;
+    setCurrentConversationIdState(conversation.id);
+    setCurrentConversationId(conversation.id);
     
     toast({
       title: 'Conversation Loaded',
