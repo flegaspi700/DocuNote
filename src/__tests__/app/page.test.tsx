@@ -400,4 +400,44 @@ describe('Main Page Component', () => {
       expect(screen.getByPlaceholderText(/ask a question/i)).toBeInTheDocument();
     });
   });
+
+  describe('Empty Conversation Saving', () => {
+    it('should allow editing title on new conversation without messages', async () => {
+      const user = userEvent.setup();
+      renderPage();
+      
+      // Find and click the edit title button
+      const editButton = screen.getByRole('button', { name: /edit conversation title/i });
+      expect(editButton).toBeInTheDocument();
+      
+      await user.click(editButton);
+      
+      // Input should appear
+      const titleInput = screen.getByRole('textbox');
+      expect(titleInput).toBeInTheDocument();
+    });
+
+    it('should save empty conversation when title is changed', async () => {
+      const user = userEvent.setup();
+      const { saveConversation } = require('@/lib/storage');
+      renderPage();
+      
+      // Edit title on empty conversation
+      const editButton = screen.getByRole('button', { name: /edit conversation title/i });
+      await user.click(editButton);
+      
+      const titleInput = screen.getByRole('textbox');
+      await user.clear(titleInput);
+      await user.type(titleInput, 'My Empty Conversation');
+      
+      // Save the title
+      const saveButton = screen.getByRole('button', { name: /save title/i });
+      await user.click(saveButton);
+      
+      // Conversation should be saved even without messages
+      await waitFor(() => {
+        expect(saveConversation).toHaveBeenCalled();
+      });
+    });
+  });
 });
