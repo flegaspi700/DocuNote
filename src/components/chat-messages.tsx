@@ -93,7 +93,7 @@ export function ChatMessages({
         </div>
         <h2 className="text-2xl font-headline font-semibold">Welcome to DocuNote</h2>
         <p className="max-w-md text-muted-foreground">
-          {hasFiles ? 'Your files are ready. Ask a question to get started.' : 'Upload a TXT or PDF file and start asking questions to get insights from your document.'}
+          {hasFiles ? 'Your files are ready. Ask a question to get started.' : 'Upload documents (.txt, .pdf, .docx, .md, .csv) or add website URLs to start asking questions and get insights from your content.'}
         </p>
       </div>
     );
