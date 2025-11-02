@@ -14,6 +14,16 @@ jest.mock('pdfjs-dist', () => ({
   version: '3.0.0',
 }));
 
+// Mock mammoth for DOCX parsing
+jest.mock('mammoth', () => ({
+  extractRawText: jest.fn(),
+}));
+
+// Mock papaparse for CSV parsing
+jest.mock('papaparse', () => ({
+  parse: jest.fn(),
+}));
+
 const mockToast = jest.fn();
 jest.mock('@/hooks/use-toast', () => ({
   useToast: () => ({ toast: mockToast }),
@@ -40,6 +50,8 @@ jest.mock('@/components/source-card', () => ({
 // Now import after mocks
 import { FileUpload } from '@/components/file-upload';
 import { scrapeUrl } from '@/app/actions';
+import mammoth from 'mammoth';
+import Papa from 'papaparse';
 
 describe('FileUpload Component', () => {
   let mockFiles: FileInfo[];
@@ -57,6 +69,8 @@ describe('FileUpload Component', () => {
     mockToast.mockClear();
     mockSetOpenMobile.mockClear();
     (scrapeUrl as jest.Mock).mockClear();
+    (mammoth.extractRawText as jest.Mock).mockClear();
+    (Papa.parse as jest.Mock).mockClear();
   });
 
   describe('Rendering', () => {
@@ -273,8 +287,8 @@ describe('FileUpload Component', () => {
       
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
       
-      // File input has accept attribute
-      expect(fileInput.getAttribute('accept')).toBe('.txt,.pdf');
+      // File input has accept attribute with all supported file types
+      expect(fileInput.getAttribute('accept')).toBe('.txt,.pdf,.md,.csv,.docx');
       
       // The component should validate files - we test this indirectly by checking
       // that invalid file types trigger validation
@@ -406,6 +420,249 @@ describe('FileUpload Component', () => {
       
       const mainDiv = container.firstChild as HTMLElement;
       expect(mainDiv.style.backgroundImage).toBe('none');
+    });
+  });
+
+  describe('New File Type Support', () => {
+    describe('Markdown Files', () => {
+      it('should process markdown (.md) files successfully', async () => {
+        const markdownContent = '# Hello World\n\nThis is **markdown** content.';
+        const file = new File([markdownContent], 'test.md', { type: 'text/markdown' });
+
+        render(<FileUpload files={[]} setFiles={mockSetFiles} aiTheme={null} />);
+        
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        await userEvent.upload(fileInput, file);
+
+        await waitFor(() => {
+          expect(mockSetFiles).toHaveBeenCalled();
+        });
+
+        await waitFor(() => {
+          expect(mockToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: 'File attached',
+            })
+          );
+        });
+
+        // Verify the file was added with correct content
+        const setFilesCall = mockSetFiles.mock.calls.find(call => 
+          typeof call[0] === 'function'
+        );
+        expect(setFilesCall).toBeDefined();
+      });
+
+      it('should handle markdown files with empty MIME type', async () => {
+        const markdownContent = '# Test Document';
+        const file = new File([markdownContent], 'test.md', { type: '' });
+
+        render(<FileUpload files={[]} setFiles={mockSetFiles} aiTheme={null} />);
+        
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        await userEvent.upload(fileInput, file);
+
+        await waitFor(() => {
+          expect(mockToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: 'File attached',
+            })
+          );
+        });
+      });
+
+      it('should handle markdown files with text/plain MIME type', async () => {
+        const markdownContent = '## Heading\n\n- List item 1\n- List item 2';
+        const file = new File([markdownContent], 'notes.md', { type: 'text/plain' });
+
+        render(<FileUpload files={[]} setFiles={mockSetFiles} aiTheme={null} />);
+        
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        await userEvent.upload(fileInput, file);
+
+        await waitFor(() => {
+          expect(mockToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: 'File attached',
+            })
+          );
+        });
+      });
+    });
+
+    describe('CSV Files', () => {
+      it('should process CSV files successfully', async () => {
+        const csvContent = 'Name,Age,City\nJohn,30,NYC\nJane,25,LA\nBob,35,Chicago';
+        const file = new File([csvContent], 'data.csv', { type: 'text/csv' });
+
+        // Configure Papa.parse mock
+        (Papa.parse as jest.Mock).mockReturnValue({
+          data: [
+            { Name: 'John', Age: '30', City: 'NYC' },
+            { Name: 'Jane', Age: '25', City: 'LA' },
+            { Name: 'Bob', Age: '35', City: 'Chicago' },
+          ],
+          meta: {
+            fields: ['Name', 'Age', 'City'],
+          },
+          errors: [],
+        });
+
+        render(<FileUpload files={[]} setFiles={mockSetFiles} aiTheme={null} />);
+        
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        await userEvent.upload(fileInput, file);
+
+        await waitFor(() => {
+          expect(mockToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: 'File attached',
+            })
+          );
+        }, { timeout: 3000 });
+      });
+
+      it('should handle CSV parsing errors', async () => {
+        const csvContent = 'Invalid,CSV,Content\nMismatched"quotes,data';
+        const file = new File([csvContent], 'bad.csv', { type: 'text/csv' });
+
+        render(<FileUpload files={[]} setFiles={mockSetFiles} aiTheme={null} />);
+        
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        await userEvent.upload(fileInput, file);
+
+        // Should handle the error gracefully
+        await new Promise(resolve => setTimeout(resolve, 500));
+      });
+
+      it('should handle CSV with different MIME types', async () => {
+        const csvContent = 'A,B,C\n1,2,3';
+        const file = new File([csvContent], 'data.csv', { type: 'application/vnd.ms-excel' });
+
+        // Configure Papa.parse mock
+        (Papa.parse as jest.Mock).mockReturnValue({
+          data: [
+            { A: '1', B: '2', C: '3' },
+          ],
+          meta: {
+            fields: ['A', 'B', 'C'],
+          },
+          errors: [],
+        });
+
+        render(<FileUpload files={[]} setFiles={mockSetFiles} aiTheme={null} />);
+        
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        await userEvent.upload(fileInput, file);
+
+        await waitFor(() => {
+          expect(mockToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: 'File attached',
+            })
+          );
+        }, { timeout: 3000 });
+      });
+    });
+
+    describe('DOCX Files', () => {
+      it('should process DOCX files successfully', async () => {
+        const docxContent = new ArrayBuffer(100); // Simulated DOCX binary
+        const file = new File([docxContent], 'document.docx', { 
+          type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+        });
+
+        // Configure mammoth.extractRawText mock
+        (mammoth.extractRawText as jest.Mock).mockResolvedValue({
+          value: 'This is the extracted text from the DOCX file.',
+          messages: [],
+        });
+
+        render(<FileUpload files={[]} setFiles={mockSetFiles} aiTheme={null} />);
+        
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        await userEvent.upload(fileInput, file);
+
+        await waitFor(() => {
+          expect(mockToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: 'File attached',
+            })
+          );
+        }, { timeout: 3000 });
+      });
+
+      it('should handle DOCX with conversion warnings', async () => {
+        const docxContent = new ArrayBuffer(100);
+        const file = new File([docxContent], 'complex.docx', { 
+          type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+        });
+
+        // Configure mammoth with warnings
+        (mammoth.extractRawText as jest.Mock).mockResolvedValue({
+          value: 'Extracted text with some formatting lost.',
+          messages: ['Some formatting was lost during conversion'],
+        });
+
+        render(<FileUpload files={[]} setFiles={mockSetFiles} aiTheme={null} />);
+        
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        await userEvent.upload(fileInput, file);
+
+        // Should process even with warnings
+        await waitFor(() => {
+          expect(mockToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              title: 'File attached',
+            })
+          );
+        }, { timeout: 3000 });
+      });
+
+      it('should handle DOCX read errors', async () => {
+        const file = new File([''], 'empty.docx', { 
+          type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+        });
+
+        // Configure mammoth to reject with error
+        (mammoth.extractRawText as jest.Mock).mockRejectedValue(
+          new Error('Could not read DOCX file')
+        );
+
+        render(<FileUpload files={[]} setFiles={mockSetFiles} aiTheme={null} />);
+        
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        await userEvent.upload(fileInput, file);
+
+        await waitFor(() => {
+          expect(mockToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              variant: 'destructive',
+            })
+          );
+        }, { timeout: 3000 });
+      });
+    });
+
+    describe('Mixed File Types', () => {
+      it('should handle multiple files of different types', async () => {
+        const txtFile = new File(['Text content'], 'text.txt', { type: 'text/plain' });
+        const mdFile = new File(['# Markdown'], 'doc.md', { type: 'text/markdown' });
+        const csvFile = new File(['A,B\n1,2'], 'data.csv', { type: 'text/csv' });
+
+        render(<FileUpload files={[]} setFiles={mockSetFiles} aiTheme={null} />);
+        
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        await userEvent.upload(fileInput, [txtFile, mdFile, csvFile]);
+
+        await waitFor(() => {
+          // Should process all files
+          const callsWithFiles = mockSetFiles.mock.calls.filter(call => 
+            typeof call[0] === 'function'
+          );
+          expect(callsWithFiles.length).toBeGreaterThan(0);
+        }, { timeout: 5000 });
+      });
     });
   });
 
