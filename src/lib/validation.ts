@@ -18,8 +18,14 @@ export const VALIDATION_LIMITS = {
   MAX_FILE_CONTENT_LENGTH: 500000, // 500K characters
   MAX_URL_LENGTH: 2048, // Standard browser limit
   MIN_MESSAGE_LENGTH: 1,
-  ALLOWED_FILE_TYPES: ['.txt', '.pdf'],
-  ALLOWED_MIME_TYPES: ['text/plain', 'application/pdf'],
+  ALLOWED_FILE_TYPES: ['.txt', '.pdf', '.md', '.csv', '.docx'],
+  ALLOWED_MIME_TYPES: [
+    'text/plain', 
+    'application/pdf',
+    'text/markdown',
+    'text/csv',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ],
 } as const;
 
 // ============================================================================
@@ -70,7 +76,8 @@ export function validateFileType(file: File): ValidationResult {
   const extension = '.' + file.name.split('.').pop()?.toLowerCase();
   
   // Check extension
-  if (!VALIDATION_LIMITS.ALLOWED_FILE_TYPES.includes(extension as '.txt' | '.pdf')) {
+  type AllowedExtensions = '.txt' | '.pdf' | '.md' | '.csv' | '.docx';
+  if (!VALIDATION_LIMITS.ALLOWED_FILE_TYPES.includes(extension as AllowedExtensions)) {
     return {
       isValid: false,
       error: `Invalid file type: ${extension}`,
@@ -78,9 +85,22 @@ export function validateFileType(file: File): ValidationResult {
     };
   }
 
-  // Check MIME type
+  // Check MIME type - but be lenient for markdown as it has multiple possible MIME types
   const allowedMimes: string[] = [...VALIDATION_LIMITS.ALLOWED_MIME_TYPES];
-  if (!allowedMimes.includes(file.type)) {
+  const isMarkdown = extension === '.md' && (
+    file.type === 'text/markdown' || 
+    file.type === 'text/x-markdown' || 
+    file.type === 'text/plain' ||
+    file.type === '' // Some browsers don't set MIME for .md files
+  );
+  
+  const isCsv = extension === '.csv' && (
+    file.type === 'text/csv' ||
+    file.type === 'application/vnd.ms-excel' ||
+    file.type === 'text/plain'
+  );
+  
+  if (!allowedMimes.includes(file.type) && !isMarkdown && !isCsv) {
     return {
       isValid: false,
       error: `Invalid MIME type: ${file.type}`,
