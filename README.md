@@ -20,15 +20,31 @@ An intelligent AI-powered chat application built with Next.js 15 and Google Gemi
 - **🔒 Input Validation:** Comprehensive security with file size limits, URL validation, and SSRF protection
 - **🛡️ Error Boundaries:** Graceful error handling with recovery options - prevents app crashes
 - **📱 Mobile Responsive:** Optimized for all devices with touch-friendly interactions and auto-close sidebar
-- **📄 File Uploads:** Upload and process both `.txt` and `.pdf` files (10MB limit) to use as a knowledge base
+- **📄 File Uploads:** Upload and process `.txt`, `.pdf`, `.md`, `.csv`, and `.docx` files (10MB limit) to use as a knowledge base
+  - Text files (.txt) - Plain text content
+  - PDF documents (.pdf) - Extracted text from PDFs
+  - Markdown files (.md) - Preserves formatting
+  - CSV files (.csv) - Parsed and formatted with headers
+  - Word documents (.docx) - Extracted text content
 - **🌐 Website Scraping:** Provide any website URL, and the application will scrape its content to use as a source
 - **📊 Source Management:** Clean sidebar interface to easily add, view, and remove your files and URL sources
   - **🎨 AI-Powered Theme Generation:** Dynamically create and apply color themes with AI-generated background images powered by Gemini 2.5 Flash Image
 - **🌙 Dark/Light Mode:** Quick theme toggle with keyboard shortcut (`Ctrl+Shift+T`)
 - **📱 Responsive Design:** Modern, responsive UI that works across different screen sizes
-- **✅ Comprehensive Testing:** 482 tests with Jest and Playwright (62.21% coverage) with CI/CD pipeline
+- **✅ Comprehensive Testing:** 519 tests with Jest and Playwright (62.21% coverage) with CI/CD pipeline
 
-## � Recent Updates
+## 📋 Recent Updates
+
+### November 2, 2025 - Enhanced File Type Support ✨
+- ✅ **5 File Types Supported** - Expanded from 2 to 5 supported file formats
+  - Added .md (Markdown) - preserves formatting
+  - Added .csv (CSV) - parses and formats data with headers
+  - Added .docx (Word Documents) - extracts text content
+  - Libraries: mammoth (DOCX), papaparse (CSV)
+  - 40+ new tests with comprehensive validation
+  - Flexible MIME type handling for browser compatibility
+  - All 519 tests passing
+  - Branch: `feat/support-more-file-types`
 
 ### November 2, 2025 - Test Coverage Improvement ✨
 - ✅ **Test Coverage to 62.21%** - Systematic testing using TDD methodology (Phase 1-2 of 4)
