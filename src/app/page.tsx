@@ -52,6 +52,7 @@ export default function Home() {
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState<string>('');
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const conversationTitleRef = useRef<string>('New Conversation');
   const { toast } = useToast();
   const { setTheme } = useTheme();
   const { streamingText, isStreaming, streamResponse, reset } = useStreamingResponse();
@@ -94,6 +95,7 @@ export default function Home() {
       const savedConversation = loadConversation(savedConversationId);
       if (savedConversation) {
         setConversationTitle(savedConversation.title);
+        conversationTitleRef.current = savedConversation.title;
       }
     }
     
@@ -122,10 +124,11 @@ export default function Home() {
           setCurrentConversationIdState(conversation.id);
           setCurrentConversationId(conversation.id);
           setConversationTitle(conversation.title); // Set auto-generated title
+          conversationTitleRef.current = conversation.title; // Update ref
           saveConversation(conversation);
         } else {
-          // Update existing conversation with current ID and title
-          const conversation = createConversation(messages, files, aiTheme || undefined, conversationTitle);
+          // Update existing conversation with current ID and title from ref
+          const conversation = createConversation(messages, files, aiTheme || undefined, conversationTitleRef.current);
           conversation.id = currentConversationId;
           saveConversation(conversation);
         }
@@ -153,6 +156,7 @@ export default function Home() {
     setCurrentConversationIdState(null);
     setCurrentConversationId(null);
     setConversationTitle('New Conversation');
+    conversationTitleRef.current = 'New Conversation';
     
     // Switch to sources tab if no sources
     if (files.length === 0) {
@@ -181,6 +185,7 @@ export default function Home() {
     setCurrentConversationIdState(conversation.id);
     setCurrentConversationId(conversation.id);
     setConversationTitle(conversation.title);
+    conversationTitleRef.current = conversation.title;
     
     toast({
       title: 'Conversation Loaded',
@@ -190,6 +195,7 @@ export default function Home() {
 
   const handleTitleChange = (newTitle: string) => {
     setConversationTitle(newTitle);
+    conversationTitleRef.current = newTitle; // Update ref immediately
     
     // If we don't have a conversation ID yet, create one and save the empty conversation
     if (!currentConversationId) {
@@ -203,8 +209,13 @@ export default function Home() {
         description: `Created "${newTitle}"`,
       });
     } else {
-      // Update existing conversation title
+      // Update existing conversation title in storage
       updateConversationTitle(currentConversationId, newTitle);
+      
+      // Also update the full conversation to ensure title is synced
+      const conversation = createConversation(messages, files, aiTheme || undefined, newTitle);
+      conversation.id = currentConversationId;
+      saveConversation(conversation);
       
       toast({
         title: 'Title Updated',
