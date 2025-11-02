@@ -52,9 +52,15 @@ export default function Home() {
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState<string>('');
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const conversationTitleRef = useRef<string>('New Conversation');
   const { toast } = useToast();
   const { setTheme } = useTheme();
   const { streamingText, isStreaming, streamResponse, reset } = useStreamingResponse();
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    conversationTitleRef.current = conversationTitle;
+  }, [conversationTitle]);
 
   // Load persisted data on mount
   useEffect(() => {
@@ -113,23 +119,27 @@ export default function Home() {
 
   // Auto-save conversation when messages or sources change
   useEffect(() => {
-    if (messages.length > 0 && isLoaded) {
-      const conversation = createConversation(messages, files, aiTheme || undefined);
-      
-      // If we don't have a current conversation ID, set it
-      if (!currentConversationId) {
-        setCurrentConversationIdState(conversation.id);
-        setCurrentConversationId(conversation.id);
-        setConversationTitle(conversation.title); // Set auto-generated title
-      } else {
-        // Update existing conversation with current ID and title
-        conversation.id = currentConversationId;
-        conversation.title = conversationTitle; // Preserve user's title
+    if (isLoaded) {
+      // Save if we have messages OR if we have a conversation ID (empty conversation with title)
+      if (messages.length > 0 || currentConversationId) {
+        // If we don't have a current conversation ID, create new one with auto-generated title
+        if (!currentConversationId) {
+          const conversation = createConversation(messages, files, aiTheme || undefined);
+          setCurrentConversationIdState(conversation.id);
+          setCurrentConversationId(conversation.id);
+          setConversationTitle(conversation.title); // Set auto-generated title
+          saveConversation(conversation);
+        } else {
+          // Update existing conversation with current ID and title from ref
+          const conversation = createConversation(messages, files, aiTheme || undefined, conversationTitleRef.current);
+          conversation.id = currentConversationId;
+          saveConversation(conversation);
+        }
       }
-      
-      saveConversation(conversation);
     }
-  }, [messages, files, aiTheme, currentConversationId, conversationTitle, isLoaded]);
+    // Note: conversationTitle is NOT in dependencies because title updates are handled by handleTitleChange
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, files, aiTheme, currentConversationId, isLoaded]);
 
   const handleNewConversation = () => {
     // Save current conversation before creating new one
@@ -174,9 +184,10 @@ export default function Home() {
     setMessages(conversation.messages);
     setFiles(conversation.sources);
     setAiTheme(conversation.aiTheme || null);
+    // Update title BEFORE setting conversation ID to avoid stale ref in auto-save effect
+    setConversationTitle(conversation.title);
     setCurrentConversationIdState(conversation.id);
     setCurrentConversationId(conversation.id);
-    setConversationTitle(conversation.title);
     
     toast({
       title: 'Conversation Loaded',
@@ -187,9 +198,25 @@ export default function Home() {
   const handleTitleChange = (newTitle: string) => {
     setConversationTitle(newTitle);
     
-    // Update in storage if we have a conversation ID
-    if (currentConversationId) {
+    // If we don't have a conversation ID yet, create one and save the empty conversation
+    if (!currentConversationId) {
+      const conversation = createConversation(messages, files, aiTheme || undefined, newTitle);
+      setCurrentConversationIdState(conversation.id);
+      setCurrentConversationId(conversation.id);
+      saveConversation(conversation);
+      
+      toast({
+        title: 'Conversation Created',
+        description: `Created "${newTitle}"`,
+      });
+    } else {
+      // Update existing conversation title in storage
       updateConversationTitle(currentConversationId, newTitle);
+      
+      // Also update the full conversation to ensure title is synced
+      const conversation = createConversation(messages, files, aiTheme || undefined, newTitle);
+      conversation.id = currentConversationId;
+      saveConversation(conversation);
       
       toast({
         title: 'Title Updated',
