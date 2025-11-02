@@ -48,7 +48,7 @@ Actual UI Structure (from error-context.md):
   - Welcome Screen:
     - img
     - heading "Welcome to DocuNote" [level=2]
-    - paragraph: "Upload a TXT or PDF file and start asking questions..."
+    - paragraph: "Upload documents (.txt, .pdf, .docx, .md, .csv) or add website URLs..."
   - Input Area:
     - textbox "Ask a question about your document(s)..."
     - button "Send message" [disabled]
@@ -91,8 +91,8 @@ Actual UI Structure (from error-context.md):
 #### Chat Functionality Tests (20 failures)
 - **Test:** "should show empty state without sources"
   - **Expected:** Text matching `/upload files or add urls/i`
-  - **Actual:** Shows "Upload a TXT or PDF file and start asking questions..."
-  - **Fix Needed:** Update text matcher to actual welcome message
+  - **Actual:** Shows "Upload documents (.txt, .pdf, .docx, .md, .csv) or add website URLs..."
+  - **Fix Needed:** ✅ FIXED - Updated text matcher to actual welcome message
 
 - **Test:** "should not allow empty message submission"
   - **Expected:** `input[placeholder*="Ask"]`
@@ -170,7 +170,7 @@ Both test suites suffer from the **same root cause**:
 **Test Expected:** "upload files or add urls" text  
 **Screenshot Shows:**
 - Welcome heading: "Welcome to DocuNote"
-- Description: "Upload a TXT or PDF file and start asking questions to get insights from your document."
+- Description: "Upload documents (.txt, .pdf, .docx, .md, .csv) or add website URLs to start asking questions and get insights from your content."
 - Input field visible but disabled until files added
 - Sidebar visible with "No URLs added" and "No files added" messages
 
@@ -196,7 +196,7 @@ Both test suites suffer from the **same root cause**:
    - `input[type="file"]` → Click "Add Files" button, then use hidden input
 
 2. Update expected text:
-   - `/upload files or add urls/i` → `/Upload a TXT or PDF file/i`
+   - ✅ FIXED: Updated to `/Upload documents.*or add website URLs/i` to match actual welcome message
 
 3. Skip theme tests (or update if Settings has theme toggle)
 
