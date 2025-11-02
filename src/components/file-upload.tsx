@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import * as pdfjsLib from 'pdfjs-dist';
+import mammoth from 'mammoth';
+import Papa from 'papaparse';
 import { Link, Plus, Loader2 } from 'lucide-react';
 import { FileInfo, AITheme } from '@/lib/types';
 import { 
@@ -144,10 +146,47 @@ export function FileUpload({ files, setFiles, aiTheme }: FileUploadProps) {
       
       try {
         let content = '';
+        const fileExtension = '.' + selectedFile.name.split('.').pop()?.toLowerCase();
         
-        if (selectedFile.type === 'text/plain') {
+        // Handle different file types
+        if (selectedFile.type === 'text/plain' || fileExtension === '.txt') {
+          // Plain text files
           content = await readFile(selectedFile, 'text') as string;
-        } else if (selectedFile.type === 'application/pdf') {
+        } 
+        else if (fileExtension === '.md' || selectedFile.type === 'text/markdown' || selectedFile.type === 'text/x-markdown') {
+          // Markdown files - just read as plain text (formatting preserved in display)
+          content = await readFile(selectedFile, 'text') as string;
+        }
+        else if (fileExtension === '.csv' || selectedFile.type === 'text/csv' || selectedFile.type === 'application/vnd.ms-excel') {
+          // CSV files - parse and format as readable text
+          const csvText = await readFile(selectedFile, 'text') as string;
+          const parseResult = Papa.parse(csvText, {
+            header: true,
+            skipEmptyLines: true,
+          });
+          
+          if (parseResult.errors.length > 0) {
+            throw new Error(`CSV parsing error: ${parseResult.errors[0].message}`);
+          }
+          
+          // Format CSV data as readable text
+          const data = parseResult.data as Record<string, string>[];
+          const headers = parseResult.meta.fields || [];
+          
+          content = `CSV Data from ${selectedFile.name}\n\n`;
+          content += `Total rows: ${data.length}\n`;
+          content += `Columns: ${headers.join(', ')}\n\n`;
+          content += `Data:\n${'-'.repeat(50)}\n`;
+          
+          data.forEach((row, index) => {
+            content += `\nRow ${index + 1}:\n`;
+            headers.forEach(header => {
+              content += `  ${header}: ${row[header]}\n`;
+            });
+          });
+        }
+        else if (selectedFile.type === 'application/pdf') {
+          // PDF files
           const arrayBuffer = await readFile(selectedFile, 'arrayBuffer') as ArrayBuffer;
           if (!arrayBuffer) throw new Error("Could not read PDF file.");
 
@@ -163,11 +202,24 @@ export function FileUpload({ files, setFiles, aiTheme }: FileUploadProps) {
             fullText += pageText + '\n';
           }
           content = fullText;
-        } else {
+        }
+        else if (fileExtension === '.docx' || selectedFile.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+          // DOCX files - extract text using mammoth
+          const arrayBuffer = await readFile(selectedFile, 'arrayBuffer') as ArrayBuffer;
+          if (!arrayBuffer) throw new Error("Could not read DOCX file.");
+          
+          const result = await mammoth.extractRawText({ arrayBuffer });
+          content = result.value;
+          
+          if (result.messages.length > 0) {
+            console.warn('DOCX conversion warnings:', result.messages);
+          }
+        }
+        else {
           toast({
             variant: 'destructive',
             title: 'Unsupported File Type',
-            description: 'Please upload a .txt or .pdf file.',
+            description: 'Please upload a .txt, .pdf, .md, .csv, or .docx file.',
           });
           continue;
         }
@@ -285,7 +337,7 @@ export function FileUpload({ files, setFiles, aiTheme }: FileUploadProps) {
             ref={fileInputRef}
             onChange={handleFileChange}
             className="hidden"
-            accept=".txt,.pdf"
+            accept=".txt,.pdf,.md,.csv,.docx"
             multiple
         />
         <Button
