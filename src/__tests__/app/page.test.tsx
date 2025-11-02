@@ -412,21 +412,20 @@ describe('Main Page Component', () => {
       
       await user.click(editButton);
       
-      // Input should appear
-      const titleInput = screen.getByRole('textbox');
+      // Input should appear - use getByDisplayValue to be more specific
+      const titleInput = screen.getByDisplayValue('New Conversation');
       expect(titleInput).toBeInTheDocument();
     });
 
     it('should save empty conversation when title is changed', async () => {
       const user = userEvent.setup();
-      const { saveConversation } = require('@/lib/storage');
       renderPage();
       
       // Edit title on empty conversation
       const editButton = screen.getByRole('button', { name: /edit conversation title/i });
       await user.click(editButton);
       
-      const titleInput = screen.getByRole('textbox');
+      const titleInput = screen.getByDisplayValue('New Conversation');
       await user.clear(titleInput);
       await user.type(titleInput, 'My Empty Conversation');
       
@@ -436,7 +435,10 @@ describe('Main Page Component', () => {
       
       // Conversation should be saved even without messages
       await waitFor(() => {
-        expect(saveConversation).toHaveBeenCalled();
+        const conversations = JSON.parse(localStorage.getItem('notechat-conversations') || '[]');
+        expect(conversations.length).toBeGreaterThan(0);
+        expect(conversations[0].title).toBe('My Empty Conversation');
+        expect(conversations[0].messages).toEqual([]);
       });
     });
   });
