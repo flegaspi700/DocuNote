@@ -131,7 +131,9 @@ export default function Home() {
         }
       }
     }
-  }, [messages, files, aiTheme, currentConversationId, conversationTitle, isLoaded]);
+    // Note: conversationTitle is NOT in dependencies because title updates are handled by handleTitleChange
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, files, aiTheme, currentConversationId, isLoaded]);
 
   const handleNewConversation = () => {
     // Save current conversation before creating new one
