@@ -170,7 +170,7 @@ export function FileUpload({ files, setFiles, aiTheme }: FileUploadProps) {
           }
           
           // Format CSV data as readable text
-          const data = parseResult.data as Record<string, any>[];
+          const data = parseResult.data as Record<string, string>[];
           const headers = parseResult.meta.fields || [];
           
           content = `CSV Data from ${selectedFile.name}\n\n`;
