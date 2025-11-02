@@ -17,7 +17,7 @@ describe('ChatMessages', () => {
     render(<ChatMessages messages={[]} hasFiles={false} {...mockEditHandlers} />);
     
     expect(screen.getByText(/Welcome to DocuNote/i)).toBeInTheDocument();
-    expect(screen.getByText(/Upload a TXT or PDF file/i)).toBeInTheDocument();
+    expect(screen.getByText(/Upload documents.*\.txt.*\.pdf.*\.docx.*\.md.*\.csv/i)).toBeInTheDocument();
   });
 
   it('renders prompt to ask questions when files exist but no messages', () => {

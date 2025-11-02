@@ -15,7 +15,7 @@ test.describe('Chat Functionality', () => {
   });
 
   test('should show empty state without sources', async ({ page }) => {
-    await expect(page.locator('text=/Upload a TXT or PDF file/i')).toBeVisible();
+    await expect(page.locator('text=/Upload documents.*or add website URLs/i')).toBeVisible();
   });
 
   test('should not allow empty message submission', async ({ page }) => {
