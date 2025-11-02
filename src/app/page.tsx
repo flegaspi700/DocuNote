@@ -116,20 +116,19 @@ export default function Home() {
     if (isLoaded) {
       // Save if we have messages OR if we have a conversation ID (empty conversation with title)
       if (messages.length > 0 || currentConversationId) {
-        const conversation = createConversation(messages, files, aiTheme || undefined);
-        
-        // If we don't have a current conversation ID, set it
+        // If we don't have a current conversation ID, create new one with auto-generated title
         if (!currentConversationId) {
+          const conversation = createConversation(messages, files, aiTheme || undefined);
           setCurrentConversationIdState(conversation.id);
           setCurrentConversationId(conversation.id);
           setConversationTitle(conversation.title); // Set auto-generated title
+          saveConversation(conversation);
         } else {
           // Update existing conversation with current ID and title
+          const conversation = createConversation(messages, files, aiTheme || undefined, conversationTitle);
           conversation.id = currentConversationId;
-          conversation.title = conversationTitle; // Preserve user's title
+          saveConversation(conversation);
         }
-        
-        saveConversation(conversation);
       }
     }
   }, [messages, files, aiTheme, currentConversationId, conversationTitle, isLoaded]);
