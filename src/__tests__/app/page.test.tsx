@@ -102,7 +102,7 @@ describe('Main Page Component', () => {
     it('should show upload prompt when no files uploaded', () => {
       renderPage();
       
-      expect(screen.getByText(/Upload a TXT or PDF file/i)).toBeInTheDocument();
+      expect(screen.getByText(/Upload documents.*\.txt.*\.pdf.*\.docx.*\.md.*\.csv/i)).toBeInTheDocument();
     });
   });
 
