@@ -105,10 +105,9 @@ describe('storage.ts', () => {
     const mockSources: FileInfo[] = [
       {
         name: 'test.txt',
-        type: 'text/plain',
-        size: 100,
+        type: 'file',
+        source: 'test.txt',
         content: 'Test content',
-        lastModified: Date.now(),
       },
     ];
 
@@ -141,13 +140,17 @@ describe('storage.ts', () => {
   // ============================================
   describe('AI Theme Persistence', () => {
     const mockTheme: AITheme = {
+      id: 'theme-ocean',
       name: 'Ocean',
-      colors: {
+      palette: {
         primary: '#0066cc',
+        primaryForeground: '#ffffff',
         secondary: '#33ccff',
         accent: '#00ff99',
         background: '#001a33',
-        text: '#ffffff',
+        foreground: '#ffffff',
+        card: '#002244',
+        border: '#004488',
       },
       backgroundImageUrl: 'data:image/png;base64,verylongbase64string',
     };
@@ -159,7 +162,7 @@ describe('storage.ts', () => {
       const saved = JSON.parse(localStorageMock.getItem('notechat-ai-theme')!);
       expect(saved.backgroundImageUrl).toBeUndefined();
       expect(saved.name).toBe('Ocean');
-      expect(saved.colors).toEqual(mockTheme.colors);
+      expect(saved.palette).toEqual(mockTheme.palette);
     });
 
     it('should load AI theme from localStorage', () => {
@@ -195,21 +198,24 @@ describe('storage.ts', () => {
     const mockSources: FileInfo[] = [
       {
         name: 'docs.txt',
-        type: 'text/plain',
-        size: 200,
+        type: 'file',
+        source: 'docs.txt',
         content: 'Documentation',
-        lastModified: Date.now(),
       },
     ];
 
     const mockTheme: AITheme = {
+      id: 'theme-test',
       name: 'Test Theme',
-      colors: {
+      palette: {
         primary: '#000',
+        primaryForeground: '#fff',
         secondary: '#111',
         accent: '#222',
         background: '#333',
-        text: '#fff',
+        foreground: '#fff',
+        card: '#444',
+        border: '#555',
       },
     };
 
@@ -291,7 +297,7 @@ describe('storage.ts', () => {
         // Wait a bit to ensure timestamp changes
         jest.spyOn(Date, 'now').mockReturnValue(originalTimestamp + 1000);
         
-        const updatedConv = { ...conv, messages: [...mockMessages, { id: '3', role: 'user', content: 'New message' }] };
+        const updatedConv = { ...conv, messages: [...mockMessages, { id: '3', role: 'user' as const, content: 'New message' }] };
         saveConversation(updatedConv);
         
         const loaded = loadConversations();
@@ -524,8 +530,21 @@ describe('storage.ts', () => {
     beforeEach(() => {
       // Set up some data
       saveMessages([{ id: '1', role: 'user', content: 'Test' }]);
-      saveSources([{ name: 'test.txt', type: 'text/plain', size: 100, content: 'Test', lastModified: Date.now() }]);
-      saveAITheme({ name: 'Test', colors: { primary: '#000', secondary: '#111', accent: '#222', background: '#333', text: '#fff' } });
+      saveSources([{ name: 'test.txt', type: 'file', source: 'test.txt', content: 'Test' }]);
+      saveAITheme({ 
+        id: 'theme-test',
+        name: 'Test', 
+        palette: { 
+          primary: '#000', 
+          primaryForeground: '#fff',
+          secondary: '#111', 
+          accent: '#222', 
+          background: '#333', 
+          foreground: '#fff',
+          card: '#444',
+          border: '#555',
+        } 
+      });
       saveConversation(createConversation([], []));
     });
 
