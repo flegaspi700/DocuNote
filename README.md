@@ -10,9 +10,10 @@ An intelligent AI-powered chat application built with Next.js 15 and Google Gemi
 
 - **💬 Conversational AI Chat:** Interact with Google Gemini 2.5 Flash to ask questions and get information from your provided sources
 - **📚 Chat History:** Save and load multiple conversations with auto-generated titles
+- **⭐ Pin Conversations:** Star important conversations to keep them at the top ✨ NEW
 - **🔍 Conversation Search:** Search conversations by title or message content with real-time filtering
-- **🎯 Advanced Search Filters:** Filter conversations by date range, source type, and more ✨ NEW
-- **⌨️ Keyboard Shortcuts:** Navigate faster with Ctrl+N, Ctrl+K, Ctrl+E, and more ✨ NEW
+- **🎯 Advanced Search Filters:** Filter conversations by date range, source type, and more
+- **⌨️ Keyboard Shortcuts:** Navigate faster with Ctrl+N, Ctrl+K, Ctrl+E, and more
 - **✨ Content Summaries:** AI-generated summaries for uploaded files and URLs with key points
 - **📥 Export Conversations:** Download chat history as TXT or PDF files
 - **⚡ Streaming Responses:** Real-time AI response streaming with animated progress indicator
@@ -30,6 +31,21 @@ An intelligent AI-powered chat application built with Next.js 15 and Google Gemi
 - **📊 Source Management:** Clean sidebar interface to easily add, view, and remove your files and URL sources
 
 ## 🚀 Recent Updates
+
+### November 4, 2025 - Stable Conversation Sorting & Pin Feature ⭐
+- ✅ **Fixed Conversation Sorting** - Conversations no longer rearrange when selected
+  - **Root Cause:** `saveConversation()` was updating `updatedAt` timestamp even when just loading from history
+  - **Solution:** Added `updateTimestamp` parameter (default: true) - set to false when loading
+  - **Impact:** Conversation list stays in consistent order, only changes when content actually changes
+  - **Testing:** 8 new TDD tests for sorting stability and pin feature ✅
+  
+- ✅ **Pin/Star Conversations** - Keep important conversations at the top
+  - Click star icon to pin/unpin any conversation
+  - Pinned conversations always appear first (sorted by most recent)
+  - Unpinned conversations follow (also sorted by most recent)
+  - Visual distinction: yellow background for pinned items
+  - Pin status persists in localStorage
+  - **Branch:** `feat/conversation-sorting-and-pinning`
 
 ### November 4, 2025 - Conversation Title UI Fix 🐛
 - ✅ **Fixed Critical Bug** - Conversation titles now update immediately in the header

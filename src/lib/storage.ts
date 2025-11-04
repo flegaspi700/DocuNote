@@ -206,8 +206,11 @@ function generateConversationTitle(messages: Message[]): string {
 
 /**
  * Save a conversation
+ * @param conversation - The conversation to save
+ * @param updateTimestamp - Whether to update the updatedAt timestamp (default: true)
+ *                          Set to false when loading from history to prevent reordering
  */
-export function saveConversation(conversation: Conversation): boolean {
+export function saveConversation(conversation: Conversation, updateTimestamp: boolean = true): boolean {
   const conversations = loadConversations();
   const existingIndex = conversations.findIndex(c => c.id === conversation.id);
   
@@ -215,7 +218,7 @@ export function saveConversation(conversation: Conversation): boolean {
     // Update existing conversation
     conversations[existingIndex] = {
       ...conversation,
-      updatedAt: Date.now(),
+      updatedAt: updateTimestamp ? Date.now() : conversation.updatedAt,
     };
   } else {
     // Add new conversation
@@ -226,11 +229,41 @@ export function saveConversation(conversation: Conversation): boolean {
 }
 
 /**
- * Load all conversations (sorted by updatedAt descending)
+ * Load all conversations with proper sorting:
+ * 1. Pinned conversations first (sorted by updatedAt descending)
+ * 2. Unpinned conversations (sorted by updatedAt descending)
  */
 export function loadConversations(): Conversation[] {
   const conversations = getItem<Conversation[]>(STORAGE_KEYS.CONVERSATIONS) || [];
-  return conversations.sort((a, b) => b.updatedAt - a.updatedAt);
+  
+  // Normalize conversations: ensure all have isPinned field
+  const normalized = conversations.map(c => ({
+    ...c,
+    isPinned: c.isPinned ?? false,
+  }));
+  
+  // Separate pinned and unpinned
+  const pinned = normalized.filter(c => c.isPinned).sort((a, b) => b.updatedAt - a.updatedAt);
+  const unpinned = normalized.filter(c => !c.isPinned).sort((a, b) => b.updatedAt - a.updatedAt);
+  
+  // Return pinned first, then unpinned
+  return [...pinned, ...unpinned];
+}
+
+/**
+ * Toggle pin status of a conversation
+ * @param id - Conversation ID to toggle
+ * @returns true if successful, false if conversation not found
+ */
+export function togglePinConversation(id: string): boolean {
+  const conversations = getItem<Conversation[]>(STORAGE_KEYS.CONVERSATIONS) || [];
+  const conversation = conversations.find(c => c.id === id);
+  
+  if (!conversation) return false;
+  
+  conversation.isPinned = !conversation.isPinned;
+  
+  return setItem(STORAGE_KEYS.CONVERSATIONS, conversations);
 }
 
 /**

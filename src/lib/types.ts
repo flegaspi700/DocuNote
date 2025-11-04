@@ -39,6 +39,7 @@ export type Conversation = {
   createdAt: number;
   updatedAt: number;
   tags?: string[]; // Array of tag names
+  isPinned?: boolean; // Whether the conversation is pinned to the top
 };
 
 export type TagMetadata = {

@@ -53,6 +53,7 @@ export default function Home() {
   const [editedContent, setEditedContent] = useState<string>('');
   const searchInputRef = useRef<HTMLInputElement>(null);
   const conversationTitleRef = useRef<string>('New Conversation');
+  const isLoadingConversationRef = useRef<boolean>(false); // Track if we're loading a conversation
   const { toast } = useToast();
   const { setTheme } = useTheme();
   const { streamingText, isStreaming, streamResponse, reset } = useStreamingResponse();
@@ -119,7 +120,7 @@ export default function Home() {
 
   // Auto-save conversation when messages or sources change
   useEffect(() => {
-    if (isLoaded) {
+    if (isLoaded && !isLoadingConversationRef.current) { // Don't save while loading
       // Save if we have messages OR if we have a conversation ID (empty conversation with title)
       if (messages.length > 0 || currentConversationId) {
         // If we don't have a current conversation ID, create new one with auto-generated title
@@ -133,7 +134,7 @@ export default function Home() {
           // Update existing conversation with current ID and title from ref
           const conversation = createConversation(messages, files, aiTheme || undefined, conversationTitleRef.current);
           conversation.id = currentConversationId;
-          saveConversation(conversation);
+          saveConversation(conversation); // This will update timestamp when content actually changes
         }
       }
     }
@@ -172,6 +173,9 @@ export default function Home() {
   };
 
   const handleLoadConversation = (conversation: Conversation) => {
+    // Set flag to prevent auto-save during load
+    isLoadingConversationRef.current = true;
+    
     // Save current conversation before loading new one
     if (messages.length > 0 && currentConversationId) {
       const currentConversation = createConversation(messages, files, aiTheme || undefined);
@@ -188,6 +192,11 @@ export default function Home() {
     setConversationTitle(conversation.title);
     setCurrentConversationIdState(conversation.id);
     setCurrentConversationId(conversation.id);
+    
+    // Reset flag after state updates complete
+    setTimeout(() => {
+      isLoadingConversationRef.current = false;
+    }, 0);
     
     toast({
       title: 'Conversation Loaded',
