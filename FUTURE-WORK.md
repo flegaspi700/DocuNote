@@ -1,8 +1,36 @@
 # Future Work & Known Issues
 
-## ✅ Recently Completed (Oct 20, 2025)
+## ✅ Recently Completed (November 4, 2025)
 
-### CI/CD Pipeline & Code Quality
+### Conversation Sorting & Management Fixes
+**Status**: ✅ COMPLETE  
+**What We Fixed**:
+- ✅ Conversation sorting stability - lists no longer rearrange when selecting conversations
+- ✅ Pin/Star feature - keep important conversations at the top
+- ✅ Conversation title UI bug - titles update immediately without page refresh
+- ✅ Empty conversation saving - create and name conversations before adding content
+
+**Technical Details**:
+- **Root Cause**: Three locations where `saveConversation()` was updating timestamps during loads:
+  1. `saveConversation()` function itself - added `updateTimestamp` parameter (PR #23)
+  2. `handleLoadConversation()` - now uses `updateTimestamp: false`
+  3. Auto-save effect - removed `currentConversationId` from dependencies
+- **Pin Feature**: Added `isPinned` field with visual distinction and toggle functionality
+- **Tests**: 8 new TDD tests for sorting/pinning, all 532 tests passing ✅
+- **Coverage**: Improved to 63.29% (statements)
+
+**Related PRs**:
+- PR #23 - `feat/conversation-sorting-and-pinning`
+- PR #24 - `fix/auto-save-timestamp-complete`
+- PR #22 - `fix/conversation-title-ui-update`
+
+**Documentation**:
+- `docs/04-development/issues/conversation-sorting-rearranges-on-selection.md`
+- `docs/04-development/issues/conversation-title-not-updating-in-ui.md`
+
+---
+
+### CI/CD Pipeline & Code Quality (Oct 20, 2025)
 **Status**: ✅ COMPLETE  
 **What We Fixed**:
 - ✅ CI/CD pipeline with automated checks (ESLint, Jest, builds)
@@ -12,12 +40,6 @@
 - ✅ Optimized fonts with Next.js `next/font/google`
 - ✅ Adjusted coverage thresholds to match actual coverage (51%/51%/44%)
 - ✅ Resolved merge conflicts with main branch
-
-**Coverage Thresholds**:
-- Statements: 51% (actual: 51.2%)
-- Lines: 51% (actual: 51.2%)
-- Branches: 65% (actual: 65.6%)
-- Functions: 44% (actual: 44.9%)
 
 **Related Commits**:
 - `4f49ecd` - ESLint fixes and font optimization

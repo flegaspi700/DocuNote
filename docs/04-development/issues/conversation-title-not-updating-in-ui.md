@@ -1,36 +1,38 @@
 # Issue: Conversation Title Not Updating in UI
 
-**Status:** ✅ RESOLVED  
+**Status:** ✅ RESOLVED (November 4, 2025)  
 **Priority:** High  
 **Date Reported:** November 2, 2025  
 **Date Resolved:** November 4, 2025  
 **Original Branch:** feat/save-empty-conversations  
 **Fix Branch:** fix/conversation-title-ui-update  
-**Commit:** a1dd36c
+**PR:** #22
+**Commit:** a1dd36c  
+**Tests:** 3 new TDD tests added, all 511 tests passing ✅
 
 ## Problem Description
 
 When updating a conversation title or loading a conversation from history, the title displays correctly in the sidebar conversation history but does NOT update in the main header until a full page refresh.
 
-## Steps to Reproduce
+**Root Cause:** Component display logic, not state management. The `ConversationTitle` component was overriding the title prop with "New Conversation" when `messages.length === 0`, even though the parent was passing the correct custom title.
+
+## Steps to Reproduce (FIXED)
 
 ### Scenario 1: New Conversation Title Update
 1. Click "New Conversation" button
 2. Click "Edit conversation title" button
 3. Change title to "Research 1"
 4. Click save (checkmark button)
-5. **Expected:** Header shows "Research 1"
-6. **Actual:** Header still shows "New Conversation"
-7. Title shows correctly in sidebar history
-8. Full page refresh (Ctrl+R) shows correct title
+5. **Expected:** Header shows "Research 1" ✅ NOW WORKS
+6. **Before:** Header still shows "New Conversation" ❌
+7. Title shows correctly in sidebar history ✅
 
 ### Scenario 2: Load Existing Conversation
 1. Have existing conversation titled "Test 5"
 2. Click on "Test 5" in conversation history sidebar
-3. **Expected:** Header shows "Test 5"
-4. **Actual:** Header still shows "New Conversation" (or previous title)
-5. Title shows correctly in sidebar history
-6. Full page refresh (Ctrl+R) shows correct title
+3. **Expected:** Header shows "Test 5" ✅ NOW WORKS
+4. **Before:** Header still shows "New Conversation" (or previous title) ❌
+5. Title shows correctly in sidebar history ✅
 
 ## Current Implementation
 
