@@ -134,7 +134,7 @@ export default function Home() {
           // Update existing conversation with current ID and title from ref
           const conversation = createConversation(messages, files, aiTheme || undefined, conversationTitleRef.current);
           conversation.id = currentConversationId;
-          saveConversation(conversation); // This will update timestamp when content actually changes
+          saveConversation(conversation, false); // Don't update timestamp in auto-save - only when user sends messages
         }
       }
     }
@@ -181,7 +181,7 @@ export default function Home() {
       const currentConversation = createConversation(messages, files, aiTheme || undefined);
       currentConversation.id = currentConversationId;
       currentConversation.title = conversationTitle; // Preserve current title
-      saveConversation(currentConversation);
+      saveConversation(currentConversation, false); // Don't update timestamp when just saving before switch
     }
     
     // Load selected conversation
@@ -269,7 +269,16 @@ export default function Home() {
       onComplete: (fullText) => {
         // Add the complete message to history
         const aiMessage: Message = { id: aiMessageId, role: 'ai', content: fullText };
-        setMessages((prev) => [...prev, aiMessage]);
+        setMessages((prev) => {
+          const newMessages = [...prev, aiMessage];
+          // Explicitly save with timestamp update when conversation actually has new content
+          if (currentConversationId) {
+            const conversation = createConversation(newMessages, files, aiTheme || undefined, conversationTitleRef.current);
+            conversation.id = currentConversationId;
+            saveConversation(conversation, true); // Update timestamp for new messages
+          }
+          return newMessages;
+        });
         setStreamingMessageId(null);
         setPending(false);
       },
