@@ -400,4 +400,46 @@ describe('Main Page Component', () => {
       expect(screen.getByPlaceholderText(/ask a question/i)).toBeInTheDocument();
     });
   });
+
+  describe('Empty Conversation Saving', () => {
+    it('should allow editing title on new conversation without messages', async () => {
+      const user = userEvent.setup();
+      renderPage();
+      
+      // Find and click the edit title button
+      const editButton = screen.getByRole('button', { name: /edit conversation title/i });
+      expect(editButton).toBeInTheDocument();
+      
+      await user.click(editButton);
+      
+      // Input should appear - use getByDisplayValue to be more specific
+      const titleInput = screen.getByDisplayValue('New Conversation');
+      expect(titleInput).toBeInTheDocument();
+    });
+
+    it('should save empty conversation when title is changed', async () => {
+      const user = userEvent.setup();
+      renderPage();
+      
+      // Edit title on empty conversation
+      const editButton = screen.getByRole('button', { name: /edit conversation title/i });
+      await user.click(editButton);
+      
+      const titleInput = screen.getByDisplayValue('New Conversation');
+      await user.clear(titleInput);
+      await user.type(titleInput, 'My Empty Conversation');
+      
+      // Save the title
+      const saveButton = screen.getByRole('button', { name: /save title/i });
+      await user.click(saveButton);
+      
+      // Conversation should be saved even without messages
+      await waitFor(() => {
+        const conversations = JSON.parse(localStorage.getItem('notechat-conversations') || '[]');
+        expect(conversations.length).toBeGreaterThan(0);
+        expect(conversations[0].title).toBe('My Empty Conversation');
+        expect(conversations[0].messages).toEqual([]);
+      });
+    });
+  });
 });

@@ -30,9 +30,10 @@ describe('ConversationTitle', () => {
       expect(editButton).toBeInTheDocument();
     });
 
-    it('hides edit button for new conversations', () => {
+    it('shows edit button for new conversations (allows early title editing)', () => {
       render(<ConversationTitle {...defaultProps} isNewConversation={true} />);
-      expect(screen.queryByRole('button', { name: /edit conversation title/i })).not.toBeInTheDocument();
+      const editButton = screen.getByRole('button', { name: /edit conversation title/i });
+      expect(editButton).toBeInTheDocument();
     });
 
     it('updates displayed title when prop changes', () => {
