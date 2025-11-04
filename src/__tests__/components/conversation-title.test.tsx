@@ -426,7 +426,7 @@ describe('ConversationTitle', () => {
 
   describe('Custom Title Display (Bug Fix)', () => {
     it('displays custom title even when isNewConversation is true and has no messages', () => {
-      // BUG: When a new conversation gets a custom title but has no messages yet,
+      // Fixed: When a new conversation gets a custom title but has no messages yet,
       // it should show the custom title, not "New Conversation"
       render(<ConversationTitle {...defaultProps} title="My Custom Title" isNewConversation={true} />);
       

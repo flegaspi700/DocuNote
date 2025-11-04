@@ -1,28 +1,40 @@
 # Issue: Conversation Sorting Rearranges When Selected
 
-**Status:** ✅ RESOLVED  
+**Status:** ✅ RESOLVED (November 4, 2025)  
 **Priority:** Medium  
 **Date Reported:** November 4, 2025  
 **Date Resolved:** November 4, 2025  
-**Branch:** feat/conversation-sorting-and-pinning  
-**Tests:** 8 new tests, all 519 tests passing ✅
+**Related PRs:**
+- PR #23 - `feat/conversation-sorting-and-pinning` (Initial fix)
+- PR #24 - `fix/auto-save-timestamp-complete` (Complete fix)
+**Tests:** 8 new TDD tests, all 532 tests passing ✅
 
 ## Problem Description
 
 The conversation history list constantly rearranges when a conversation is selected. This makes it difficult to find and navigate between conversations because the list order keeps changing based on which conversation was last accessed.
 
-## Current Behavior
+## Current Behavior (FIXED)
 
-When you click on a conversation in the sidebar:
+**Before Fix:**
+When you clicked on a conversation in the sidebar:
 1. The conversation loads correctly
 2. The `updatedAt` timestamp is updated to current time
 3. `loadConversations()` sorts by `updatedAt` descending
 4. The selected conversation jumps to the top of the list
 5. All other conversations shift down
 
-**Result:** The list constantly reshuffles, making navigation confusing.
+**After Fix:**
+When you click on a conversation:
+1. The conversation loads correctly
+2. The `updatedAt` timestamp is **NOT** updated
+3. The list order remains stable
+4. The selected conversation stays in its position ✅
+
+Timestamps are now only updated when you send a new message.
 
 ## Root Cause
+
+Found **THREE** locations where `saveConversation()` was incorrectly updating timestamps:
 
 **File:** `src/lib/storage.ts`
 
@@ -371,6 +383,71 @@ className={`
 2. **Loading vs Saving:** Loading an existing conversation shouldn't update its timestamp
 3. **TDD Success:** Writing tests first helped design the API correctly (`updateTimestamp` parameter)
 4. **Migration-Friendly:** `isPinned ?? false` ensures backwards compatibility with existing conversations
+5. **Three-Location Bug:** Issue persisted because fixes were applied piecemeal - needed to fix all three:
+   - ✅ `saveConversation()` function itself
+   - ✅ `handleLoadConversation()` call site
+   - ✅ Auto-save effect dependencies (the main culprit)
+
+---
+
+## Complete Resolution (November 4, 2025)
+
+### The Final Fix - PR #24: `fix/auto-save-timestamp-complete`
+
+After PR #23 was merged, the issue **still persisted**. Investigation revealed the auto-save effect was the main culprit:
+
+**Problem:** Auto-save effect depended on `currentConversationId`
+```typescript
+// BEFORE (BUGGY):
+useEffect(() => {
+  // ... save conversation ...
+}, [messages, files, aiTheme, currentConversationId, isLoaded]); // ❌ currentConversationId triggers effect
+```
+
+**What happened:**
+1. User clicks conversation → `handleLoadConversation()` called
+2. `setCurrentConversationId(conversation.id)` → **triggers effect**
+3. Effect runs and calls `saveConversation()` without `false`
+4. Timestamp updates, conversation jumps to top
+
+**Solution:** Remove `currentConversationId` from dependencies
+```typescript
+// AFTER (FIXED):
+useEffect(() => {
+  if (isLoaded && !isLoadingConversationRef.current) {
+    if (messages.length > 0) { // Only save when there's content
+      if (!currentConversationId) {
+        // New conversation
+        saveConversation(conversation);
+      } else {
+        // Existing conversation - don't update timestamp
+        saveConversation(conversation, false);
+      }
+    }
+  }
+}, [messages, files, aiTheme, isLoaded]); // ✅ No currentConversationId
+```
+
+**Explicit timestamp update** added when user sends messages:
+```typescript
+onComplete: (fullText) => {
+  const aiMessage: Message = { id: aiMessageId, role: 'ai', content: fullText };
+  setMessages((prev) => [...prev, aiMessage]);
+  
+  // Update timestamp when conversation actually changes
+  if (currentConversationId) {
+    const conversation = createConversation([...messages, userMessage, aiMessage], files, aiTheme, conversationTitleRef.current);
+    conversation.id = currentConversationId;
+    saveConversation(conversation, true); // ✅ Explicitly update timestamp
+  }
+}
+```
+
+**Test Results:**
+- All 532 tests passing ✅
+- Manual testing: Conversations stay in place when selected ✅
+- Manual testing: Conversations move to top when new message sent ✅
+- Browser localStorage cache needed to be cleared for existing users
 
 ---
 
