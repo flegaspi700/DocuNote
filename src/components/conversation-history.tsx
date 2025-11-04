@@ -24,12 +24,14 @@ import {
   FileText,
   MessageSquare,
   Tags,
+  Star,
 } from 'lucide-react';
 import type { Conversation } from '@/lib/types';
 import {
   loadConversations,
   deleteConversation,
   saveConversation,
+  togglePinConversation,
 } from '@/lib/storage';
 import { 
   addTagToConversation, 
@@ -116,6 +118,21 @@ export function ConversationHistory({
 
   const handleLoadConversation = (conversation: Conversation) => {
     onLoadConversation(conversation);
+  };
+
+  const handleTogglePin = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const success = togglePinConversation(id);
+    if (success) {
+      setConversations(loadConversations());
+      const conversation = conversations.find(c => c.id === id);
+      toast({
+        title: conversation?.isPinned ? 'Conversation Unpinned' : 'Conversation Pinned',
+        description: conversation?.isPinned 
+          ? `"${conversation?.title}" removed from top` 
+          : `"${conversation?.title}" pinned to top`,
+      });
+    }
   };
 
   const handleExport = async (e: React.MouseEvent, conversation: Conversation, format: 'txt' | 'pdf') => {
@@ -430,9 +447,12 @@ export function ConversationHistory({
                   className={`
                     w-full p-3 rounded-lg transition-all
                     group relative min-h-[44px] cursor-pointer
+                    ${conversation.isPinned ? 'bg-yellow-50/50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800' : ''}
                     ${isActive 
                       ? 'bg-primary/10 border border-primary/20' 
-                      : 'hover:bg-accent border border-transparent'
+                      : conversation.isPinned 
+                        ? 'border hover:bg-yellow-100/50 dark:hover:bg-yellow-900/30'
+                        : 'hover:bg-accent border border-transparent'
                     }
                   `}
                 >
@@ -483,6 +503,30 @@ export function ConversationHistory({
                     <div className={`flex gap-1 shrink-0 transition-opacity ${
                       isHovered || isActive ? 'opacity-100' : 'opacity-0'
                     }`}>
+                      {/* Pin Button */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            className={`h-8 w-8 inline-flex items-center justify-center rounded-md touch-manipulation ${
+                              conversation.isPinned 
+                                ? 'text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-950' 
+                                : 'hover:bg-accent hover:text-accent-foreground'
+                            }`}
+                            onClick={(e) => handleTogglePin(e, conversation.id)}
+                            aria-label={conversation.isPinned ? 'Unpin conversation' : 'Pin conversation'}
+                          >
+                            <Star className={`h-4 w-4 ${conversation.isPinned ? 'fill-current' : ''}`} />
+                            <span className="sr-only">
+                              {conversation.isPinned ? 'Unpin conversation' : 'Pin conversation'}
+                            </span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                          <p>{conversation.isPinned ? 'Unpin from top' : 'Pin to top'}</p>
+                        </TooltipContent>
+                      </Tooltip>
+
                       {/* Export Dropdown */}
                       <Tooltip>
                         <DropdownMenu>
