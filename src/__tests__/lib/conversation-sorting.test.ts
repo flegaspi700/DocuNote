@@ -123,7 +123,7 @@ describe('Conversation Sorting and Pinning', () => {
         ...conv1,
         messages: [
           ...conv1.messages,
-          { id: '3', role: 'ai', content: 'Response' },
+          { id: '3', role: 'ai' as const, content: 'Response' },
         ],
       };
 
