@@ -28,6 +28,32 @@ An intelligent AI-powered chat application built with Next.js 15 and Google Gemi
   - Word documents (.docx) - Extracted text content
 - **🌐 Website Scraping:** Provide any website URL, and the application will scrape its content to use as a source
 - **📊 Source Management:** Clean sidebar interface to easily add, view, and remove your files and URL sources
+
+## 🚀 Recent Updates
+
+### November 4, 2025 - Conversation Title UI Fix 🐛
+- ✅ **Fixed Critical Bug** - Conversation titles now update immediately in the header
+  - **Root Cause:** `ConversationTitle` component was overriding the title prop with hardcoded "New Conversation" when `messages.length === 0`
+  - **Solution:** Removed conditional override logic - component now displays actual title prop
+  - **Impact:** Instant UI updates when changing conversation titles (no more page refresh needed)
+  - **Testing:** TDD methodology with 3 new tests, all 511 tests passing ✅
+  - **Branch:** `fix/conversation-title-ui-update`
+  - **Lesson:** Previous 7 fix attempts modified state management, but bug was in component display logic
+
+### November 2, 2025 - Enhanced Conversation Management
+- ✅ **Save Empty Conversations** - You can now save and name conversations even without messages or files
+  - Create conversations with custom titles before chatting
+  - Edit conversation titles anytime (not just after first message)
+  - Better organization for planning and research workflows
+
+### October 30, 2025 - Extended File Type Support 📄
+- ✅ **Added support for 3 new file types:** CSV, Markdown, and Word documents
+  - `.csv` - Parsed with column headers and formatted tables
+  - `.md` - Markdown files with preserved formatting
+  - `.docx` - Microsoft Word documents with extracted text
+- ✅ **Updated welcome message** to reflect all 5 supported file types
+- ✅ **Comprehensive testing** with Jest and Playwright for all file formats
+
   - **🎨 AI-Powered Theme Generation:** Dynamically create and apply color themes with AI-generated background images powered by Gemini 2.5 Flash Image
 - **🌙 Dark/Light Mode:** Quick theme toggle with keyboard shortcut (`Ctrl+Shift+T`)
 - **📱 Responsive Design:** Modern, responsive UI that works across different screen sizes

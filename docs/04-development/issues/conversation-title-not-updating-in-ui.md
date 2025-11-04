@@ -1,9 +1,12 @@
 # Issue: Conversation Title Not Updating in UI
 
-**Status:** Open  
+**Status:** ✅ RESOLVED  
 **Priority:** High  
 **Date Reported:** November 2, 2025  
-**Branch:** feat/save-empty-conversations
+**Date Resolved:** November 4, 2025  
+**Original Branch:** feat/save-empty-conversations  
+**Fix Branch:** fix/conversation-title-ui-update  
+**Commit:** a1dd36c
 
 ## Problem Description
 
@@ -147,14 +150,77 @@ useEffect(() => {
 
 All unit tests pass, but the visual UI update is not happening. This suggests the issue is related to React's rendering cycle rather than the underlying logic.
 
-## Next Steps
+---
 
-1. Add detailed console logging to track state changes
-2. Inspect ChatHeader and ConversationTitle components for rendering issues
-3. Check React DevTools to see if props are updating
-4. Consider if this is a React 19 or Next.js 15 specific issue
-5. Try creating a minimal reproduction case
+## ✅ RESOLUTION (November 4, 2025)
 
-## Workaround for Users
+### Root Cause Found
+The bug was **NOT** in `page.tsx` state management (as all 7 attempts assumed), but in the `ConversationTitle` component itself.
+
+**File:** `src/components/conversation-title.tsx`  
+**Line:** 58  
+**Buggy Code:**
+```typescript
+const displayTitle = isNewConversation ? 'New Conversation' : title;
+```
+
+**Problem:**
+- When `isNewConversation = !currentConversationId || messages.length === 0`
+- User sets custom title on empty conversation → `currentConversationId` exists
+- But `messages.length === 0` is still `true`
+- Therefore `isNewConversation` is `true`
+- Component **overrides** the `title` prop with hardcoded `"New Conversation"`
+- Title prop was correct, but component ignored it!
+
+### Fix Applied (TDD Methodology)
+
+**Red Phase:** Added 3 failing tests
+1. "displays custom title even when isNewConversation is true and has no messages"
+2. "displays 'New Conversation' only when title is actually 'New Conversation'"
+3. "updates from 'New Conversation' to custom title in real-time"
+
+**Green Phase:** Fixed bug with single line change
+```typescript
+// BEFORE (BUGGY):
+const displayTitle = isNewConversation ? 'New Conversation' : title;
+
+// AFTER (FIXED):
+// Always display the actual title prop - don't override with "New Conversation"
+// The parent component determines what title to show
+const displayTitle = title;
+```
+
+Also updated existing test that expected buggy behavior.
+
+**Result:**
+- ✅ Title updates immediately in UI
+- ✅ All 33 component tests passing
+- ✅ All 511 tests passing (no regressions)
+- ✅ Minimal change (1 line fix)
+
+### Why Previous 7 Attempts Failed
+All previous fixes modified `page.tsx` state management:
+- Removed dependencies from auto-save
+- Added refs to prevent stale closures
+- Fixed state update order
+- Auto-synced refs with useEffect
+- Saved full conversation on title change
+- Updated refs before setting conversation ID
+
+**The real problem:** State management was working correctly all along! The component was **fighting against** the parent's state updates by overriding the title prop internally.
+
+### Lessons Learned
+1. **Component hierarchy matters** - Check child components for prop overrides
+2. **State vs Display** - Component was ignoring parent's state
+3. **Minimal testing** - Previous attempts only tested state, not DOM rendering
+4. **TDD helps** - Writing failing tests exposed the component-level bug
+
+### Related Commits
+- Fix commit: `a1dd36c` on `fix/conversation-title-ui-update` branch
+- Previous attempts: 7 commits on `feat/save-empty-conversations` branch (superseded)
+
+---
+
+## Workaround for Users (NO LONGER NEEDED)
 
 **Current Workaround:** Refresh the page (F5 or Ctrl+R) after changing title or loading conversation.
