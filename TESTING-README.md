@@ -1,33 +1,36 @@
 # 🧪 Testing Infrastructure for DocuNote
 
+**Last Updated:** November 4, 2025  
+**Current Coverage:** 66.92% overall | 95%+ core business logic  
+**Total Tests:** 688 (675 passing, 13 skipped)
+
 ## ✅ What's Been Created
 
-Comprehensive testing infrastructure for DocuNote project:
+Comprehensive testing infrastructure with excellent coverage of core business logic:
 
-### 📁 Test Files Created
+### 📁 Test Files Structure
 
 ```
 DocuNote/
-├── docs/
-│   ├── testing-strategy.md          # Overall testing approach
-│   ├── testing-guide.md             # How to run automated tests
-│   ├── manual-test-scenarios.md     # Manual testing checklist
-│   └── test-package-additions.json  # Dependencies to add
 ├── src/
 │   └── __tests__/
-│       ├── __mocks__/               # Mock data
+│       ├── __mocks__/               # Mock data & utilities
 │       │   ├── mockFiles.ts
 │       │   ├── mockMessages.ts
 │       │   ├── mockThemes.ts
 │       │   └── mockUrls.ts
-│       ├── components/              # Component tests
+│       ├── components/              # Component tests (200+ tests)
 │       │   ├── chat-input-form.test.tsx
-│       │   └── chat-messages.test.tsx
+│       │   ├── chat-messages.test.tsx
+│       │   └── ... (15+ component test files)
 │       ├── integration/             # Integration tests
 │       │   └── actions.test.ts
-│       └── lib/                     # Utility tests
+│       └── lib/                     # Business logic tests (HIGH COVERAGE 🎯)
+│           ├── storage.test.ts       # 97.14% coverage (45 tests)
+│           ├── validation.test.ts    # 95.85% coverage (61 tests)
+│           ├── error-logger.test.ts  # 99.25% coverage (50 tests)
 │           └── utils.test.ts
-├── e2e/                            # End-to-end tests
+├── e2e/                            # End-to-end tests (Playwright)
 │   ├── file-upload.spec.ts
 │   ├── url-scraping.spec.ts
 │   ├── chat-functionality.spec.ts
@@ -57,9 +60,13 @@ npm install --save-dev jest @types/jest jest-environment-jsdom @testing-library/
 npx playwright install
 ```
 
-### Step 3: Add Test Scripts to package.json
+### Step 3: Test Scripts (Already in package.json)
 
-Add these to your `"scripts"` section in `package.json`:
+Available test commands:
+
+### Step 3: Test Scripts (Already in package.json)
+
+Available test commands:
 
 ```json
 "test": "jest --watch",
@@ -74,8 +81,11 @@ Add these to your `"scripts"` section in `package.json`:
 ### Step 4: Run Tests
 
 ```powershell
-# Unit/Integration tests
+# Unit/Integration tests (watch mode)
 npm test
+
+# Generate coverage report
+npm run test:coverage
 
 # E2E tests (requires app to be running)
 npm run test:e2e
@@ -84,16 +94,34 @@ npm run test:e2e
 npm run test:all
 ```
 
-## 📊 Test Coverage
+## 📊 Test Coverage (November 4, 2025)
 
-### Unit Tests (Jest)
-- ✅ ChatInputForm component
-- ✅ ChatMessages component  
-- ✅ Utility functions (cn, etc.)
+### 🎯 Overall Coverage: 66.92%
+- **Total Tests:** 688 (675 passing, 13 skipped)
+- **Core Business Logic:** 95%+ coverage ✨
+
+### 🔥 High Coverage Files (95%+)
+- ✅ **storage.ts** - 97.14% (localStorage utilities, conversation management)
+- ✅ **validation.ts** - 95.85% (URL validation, XSS/SSRF protection)
+- ✅ **error-logger.ts** - 99.25% (error tracking, logging, persistence)
+
+### Unit Tests (Jest - 688 total)
+- ✅ **Component Tests** (~200 tests)
+  - ChatInputForm, ChatMessages, ThemeToggle
+  - FileUpload, SettingsMenu, AIThemeGenerator
+  - UI components (Button, Dialog, Card, etc.)
+- ✅ **Business Logic Tests** (156 tests - NEW!)
+  - Storage operations (CRUD, pin/unpin, sorting)
+  - Input validation (URL, file, message)
+  - Error logging and formatting
+- ✅ **Utility Tests**
+  - Helper functions, type guards
+  - Theme management
+  - Placeholder images
 
 ### Integration Tests
 - ✅ Server actions (getAIResponse, scrapeUrl)
-- ✅ Error handling
+- ✅ Error handling flows
 - ✅ File content processing
 
 ### E2E Tests (Playwright)

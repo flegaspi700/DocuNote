@@ -32,6 +32,27 @@ An intelligent AI-powered chat application built with Next.js 15 and Google Gemi
 
 ## 🚀 Recent Updates
 
+### November 4, 2025 - Major Test Coverage Improvements 🎯
+- ✅ **Test Coverage: 63.29% → 66.92%** (+3.63%) - Core business logic now has 95%+ coverage
+  - **Storage Tests (PR #26):** `lib/storage.ts` 69.14% → 97.14% (+28%)
+    - 45 comprehensive tests for localStorage utilities
+    - Tests: messages, sources, AI themes, conversations, bulk operations
+    - Full coverage of CRUD operations, pin/unpin, sorting logic
+  
+  - **Validation Tests (PR #27):** `lib/validation.ts` 71.95% → 95.85% (+23.9%)
+    - 61 comprehensive tests for security and input validation
+    - Tests: URL validation (SSRF, XSS protection), message/content length
+    - File name security, HTML sanitization, utility functions
+  
+  - **Error Logger Tests (PR #27):** `lib/error-logger.ts` 35.95% → 99.25% (+63.3%)
+    - 50 comprehensive tests for error tracking and logging
+    - Tests: error levels, history management, persistence, formatting
+    - Error type detection (network, timeout), user-friendly messages
+  
+  - **Total Impact:** 156 new tests added (532 → 688 tests)
+  - **Methodology:** Test-Driven Development (TDD) with edge case focus
+  - All PRs merged with CI validation ✅
+
 ### November 4, 2025 - Stable Conversation Sorting & Pin Feature ⭐
 - ✅ **Fixed Conversation Sorting** - Conversations no longer rearrange when selected
   - **Root Cause:** `saveConversation()` was updating `updatedAt` timestamp even when just loading from history
@@ -54,7 +75,6 @@ An intelligent AI-powered chat application built with Next.js 15 and Google Gemi
   - **Impact:** Instant UI updates when changing conversation titles (no more page refresh needed)
   - **Testing:** TDD methodology with 3 new tests, all 511 tests passing ✅
   - **Branch:** `fix/conversation-title-ui-update`
-  - **Lesson:** Previous 7 fix attempts modified state management, but bug was in component display logic
 
 ### November 2, 2025 - Enhanced Conversation Management
 - ✅ **Save Empty Conversations** - You can now save and name conversations even without messages or files
@@ -69,33 +89,6 @@ An intelligent AI-powered chat application built with Next.js 15 and Google Gemi
   - `.docx` - Microsoft Word documents with extracted text
 - ✅ **Updated welcome message** to reflect all 5 supported file types
 - ✅ **Comprehensive testing** with Jest and Playwright for all file formats
-
-  - **🎨 AI-Powered Theme Generation:** Dynamically create and apply color themes with AI-generated background images powered by Gemini 2.5 Flash Image
-- **🌙 Dark/Light Mode:** Quick theme toggle with keyboard shortcut (`Ctrl+Shift+T`)
-- **📱 Responsive Design:** Modern, responsive UI that works across different screen sizes
-- **✅ Comprehensive Testing:** 519 tests with Jest and Playwright (62.21% coverage) with CI/CD pipeline
-
-## 📋 Recent Updates
-
-### November 2, 2025 - Enhanced File Type Support ✨
-- ✅ **5 File Types Supported** - Expanded from 2 to 5 supported file formats
-  - Added .md (Markdown) - preserves formatting
-  - Added .csv (CSV) - parses and formats data with headers
-  - Added .docx (Word Documents) - extracts text content
-  - Libraries: mammoth (DOCX), papaparse (CSV)
-  - 40+ new tests with comprehensive validation
-  - Flexible MIME type handling for browser compatibility
-  - All 519 tests passing
-  - Branch: `feat/support-more-file-types`
-
-### November 2, 2025 - Test Coverage Improvement ✨
-- ✅ **Test Coverage to 62.21%** - Systematic testing using TDD methodology (Phase 1-2 of 4)
-  - Added 36 new tests (446 → 482 total)
-  - Coverage: 60.98% → 62.21% statements (+1.23%)
-  - Components tested: theme-provider (100% coverage), error page (100% coverage)
-  - 100% coverage achieved on theme-provider.tsx and error.tsx
-  - Comprehensive error page testing (25 tests covering rendering, logging, interactions, dev/prod modes, edge cases)
-  - Branch: `feat/reach-65-percent-coverage` - Target 65% coverage (2.79% remaining)
 
 ## �🚀 Getting Started
 
@@ -196,35 +189,36 @@ Comprehensive documentation is available in the `docs/` folder:
 
 ## 🎯 Project Status
 
-### ✅ What's Working (Nov 2, 2025)
+### ✅ What's Working (Nov 4, 2025)
 
 - **Chat Interface** - Full conversational AI with context from sources
-- **Chat History** - Save, load, and manage multiple conversations
+- **Chat History** - Save, load, and manage multiple conversations with auto-generated titles
+- **Pin Conversations** - Star important conversations to keep them at the top ⭐ NEW
 - **Conversation Search** - Search by title or message content with debounced filtering
 - **Search Filters** - Filter conversations by date range, source type
-- **Testing** - 482 tests (469 passing, 13 skipped), 62.21% coverage, CI/CD pipeline
-- **Keyboard Shortcuts** - Quick navigation with Ctrl+N, Ctrl+K, Ctrl+E, Ctrl+Shift+T ✨ NEW
-- **Message Editing** - Edit and regenerate AI responses ✨ NEW
-- **Conversation Tags** - Organize with custom color-coded tags ✨ NEW
+- **Testing** - 688 tests (675 passing, 13 skipped), 66.92% coverage, CI/CD pipeline ✨ NEW
+  - Core business logic: 95%+ coverage (storage, validation, error-logger)
+- **Keyboard Shortcuts** - Quick navigation with Ctrl+N, Ctrl+K, Ctrl+E, Ctrl+Shift+T
+- **Message Editing** - Edit and regenerate AI responses
+- **Conversation Tags** - Organize with custom color-coded tags
 - **Content Summaries** - AI-generated summaries for files and URLs
 - **Export Conversations** - Download chat history as TXT or PDF
 - **Response Streaming** - Real-time token-by-token AI responses
 - **Data Persistence** - Auto-save/restore messages, sources, themes, and conversations
-- **Input Validation** - Comprehensive security and data validation
+- **Input Validation** - Comprehensive security and data validation (SSRF, XSS protection)
+- **Error Logging** - Centralized error tracking with persistence and user-friendly messages
 - **Error Boundaries** - Graceful error handling and crash prevention
 - **Mobile Responsive** - Optimized for all devices (320px - 1920px+)
-- **File Upload** - `.txt` and `.pdf` file processing with size limits (10MB)
+- **File Upload** - `.txt`, `.pdf`, `.md`, `.csv`, `.docx` file processing (10MB limit) ✨ NEW
 - **URL Scraping** - Website content extraction with SSRF protection
 - **Source Management** - Add/remove files and URLs with summary generation
 - **Theme System** - Dark/light mode + AI-generated themes with optimized fonts
-- **Testing** - 296 tests, 53.14% coverage, CI/CD pipeline
-- **CI/CD** - ESLint, Jest, and build checks on every push
+- **CI/CD** - TypeScript, ESLint, Jest, and build checks on every push
 
 ### 🚧 Known Limitations
 
 - No user authentication (single-user local app)
 - No swipe gestures for sidebar (future enhancement)
-- Limited to 2 file types (txt, pdf - 10MB max)
 - 5MB localStorage limit (can store ~1000 messages)
 - Content limits (500K chars per file, 100K chars per message)
 
@@ -253,8 +247,11 @@ See **[Development Issue Log](./docs/04-development/dev-issue-log.md)** for deta
 14. ~~**Conversation Tags**~~ ✅ COMPLETED (Oct 30, 2025) - Organize with custom tags
 
 ### Low Priority (Future Features)
-18. **User Authentication** - Multi-user support with accounts
-19. **More File Types** - `.docx`, `.csv`, `.md`, images support
+15. **User Authentication** - Multi-user support with accounts
+16. **Cloud Storage** - Sync conversations across devices
+17. **More AI Models** - Support for Claude, GPT-4, etc.
+18. **Voice Input** - Speech-to-text for messages
+19. **Collaborative Chats** - Share conversations with others
 20. **Multi-Model Support** - Switch between AI models
 21. **Collaborative Features** - Share conversations, team workspaces
 22. **Voice Integration** - Speech-to-text and text-to-speech
@@ -288,9 +285,9 @@ npx playwright show-report # View E2E test report
 ```
 
 **Current Status:**
-- 469 passing Jest tests, 13 skipped
+- 688 tests (675 passing, 13 skipped)
 - 20+ E2E tests with Playwright
-- 62.21% statement coverage, 78.52% branch coverage, 49.04% function coverage
+- 66.92% statement coverage, 81.20% branch coverage, 54.85% function coverage
 - CI/CD pipeline with automated checks
 
 For complete testing guide, see **[Testing Documentation](./docs/02-testing/README.md)**.
@@ -335,13 +332,13 @@ Contributions are welcome! Please see:
 
 | Metric | Value | Last Updated |
 |--------|-------|--------------|
-| **Lines of Code** | ~7,500+ lines | Nov 2, 2025 |
-| **Documentation** | ~25,000+ lines | Nov 2, 2025 |
-| **Tests** | 482 tests (469 passing, 13 skipped) | Nov 2, 2025 |
-| **Test Coverage** | 62.21% statements, 78.52% branches, 49.04% functions | Nov 2, 2025 |
-| **Components** | 32+ reusable UI components | Nov 2, 2025 |
-| **AI Flows** | 6 Genkit flows | Nov 2, 2025 |
-| **Custom Hooks** | 7 hooks | Nov 2, 2025 |
+| **Lines of Code** | ~7,500+ lines | Nov 4, 2025 |
+| **Documentation** | ~25,000+ lines | Nov 4, 2025 |
+| **Tests** | 688 tests (675 passing, 13 skipped) | Nov 4, 2025 |
+| **Test Coverage** | 66.92% statements, 81.20% branches, 54.85% functions | Nov 4, 2025 |
+| **Components** | 32+ reusable UI components | Nov 4, 2025 |
+| **AI Flows** | 6 Genkit flows | Nov 4, 2025 |
+| **Custom Hooks** | 7 hooks | Nov 4, 2025 |
 
 ---
 
@@ -361,151 +358,4 @@ Built with:
 
 ---
 
-## 🆕 Recent Updates
-
-### October 30, 2025 - Keyboard Shortcuts & Advanced Filters ✨ NEW
-- ✅ **Keyboard Shortcuts** - Navigate faster with global shortcuts
-  - `Ctrl+N` / `Cmd+N` - Create new conversation
-  - `Ctrl+K` / `Cmd+K` - Focus search input
-  - `Ctrl+E` / `Cmd+E` - Export current conversation
-  - `Ctrl+Shift+T` / `Cmd+Shift+T` - Toggle theme
-  - `Esc` - Close dialogs and modals
-  - Cross-platform support (Windows/Mac/Linux)
-  - Input field protection (shortcuts disabled when typing)
-  - Disabled during pending/streaming states
-- ✅ **Advanced Search Filters** - Filter conversations with precision
-  - Date range filters: Today, Last 7 days, Last 30 days
-  - Source type filters: Files only, URLs only, No sources
-  - Combined filters with AND logic
-  - Visual filter badges with count indicator
-  - Quick filter toggle and individual removal
-  - Filter persistence across tab switches
-  - Works seamlessly with text search
-- ✅ **Testing** - Comprehensive test coverage
-  - 24 keyboard shortcut unit tests
-  - 41 search filter unit tests (27 new + 14 existing)
-  - 7 keyboard shortcut E2E tests
-  - 15 search filter E2E tests
-  - All 263 tests passing
-- ✅ **UI Enhancements** - Polished filter interface
-  - Filter dropdown with organized sections
-  - Active filter badges with X buttons
-  - Filter count badge on Filters button
-  - Checkmarks for active filters in dropdown
-  - Clear all filters option
-- 📚 **Documentation** - Complete feature guides
-  - [Keyboard Shortcuts Guide](./docs/03-features/keyboard-shortcuts.md)
-  - [Search Filters Guide](./docs/03-features/search-filters.md)
-
-### October 30, 2025 - Export Conversations
-- ✅ **Export to TXT** - Download conversations as plain text files
-  - Clean, readable format with metadata
-  - Includes sources and summaries
-  - One-click download from conversation history
-- ✅ **Export to PDF** - Professional PDF documents
-  - Styled with proper typography
-  - Color-coded messages (blue for user, green for AI)
-  - Multi-page support with automatic page breaks
-  - Includes conversation metadata and sources
-- ✅ **Export UI** - Intuitive export interface
-  - Download button appears on conversation hover
-  - Dropdown menu with format selection
-  - Success/error toast notifications
-  - Safe filename generation with timestamps
-- ✅ **Testing** - Comprehensive test coverage
-  - 14 new unit tests (exportConversationToTxt, exportConversationToPdf)
-  - 5 new E2E tests (export button, dropdown, toasts)
-  - 84.16% coverage in export.ts
-- 📚 **Documentation** - Full feature documentation in [docs/03-features/export-conversations.md](./docs/03-features/export-conversations.md)
-
-### October 20, 2025 - CI/CD Pipeline & Code Quality
-- ✅ **CI/CD Pipeline** - Automated quality checks on every push
-  - ESLint code quality validation
-  - Jest unit and integration tests
-  - Coverage threshold enforcement (51%+ coverage)
-  - Automated builds with Next.js
-  - GitGuardian security scanning
-- ✅ **Code Quality Improvements** - Enhanced type safety and cleaner code
-  - Fixed all ESLint warnings and errors
-  - Created `ThemePalette` interface (replaced `any` types)
-  - Removed unused variables and imports
-  - Optimized fonts with Next.js `next/font/google`
-  - Inter and Space Grotesk fonts with automatic optimization
-- ✅ **Testing Infrastructure** - Coverage thresholds adjusted
-  - Statements: 51.2% (locked in gains)
-  - Branches: 65.6% (exceeds 65% threshold)
-  - Functions: 44.9% (meets threshold)
-  - Lines: 51.2% (locked in gains)
-- 📚 **Documentation** - Updated README and test coverage metrics
-
-### October 17, 2025 (Afternoon Session)
-- ✅ **Chat History Management** - Complete conversation management system
-  - Save and load multiple conversations
-  - Auto-generated conversation titles from first message
-  - Smart sorting by recent activity
-  - Delete conversations with confirmation
-  - Seamless conversation switching
-  - Timestamps and message counts
-  - Auto-save on every change
-- ✅ **Conversation Search** - Real-time search functionality
-  - Search conversations by title or message content
-  - Case-insensitive with debounced input (300ms)
-  - Clear button to reset search
-  - Shows "No conversations found" when no matches
-  - Custom `useConversationSearch` hook
-  - 14 unit tests + 9 E2E tests (27 runs across browsers)
-- ✅ **Content Summaries** - AI-powered source summaries
-  - Generate 200-300 word summaries for any source
-  - 3-5 key points extraction
-  - Collapsible summary display
-  - One-click generation with sparkle icon
-  - Persistent storage with sources
-  - New Genkit flow for summarization
-- 📚 **Documentation** - Added [chat-history-content-summaries.md](./docs/04-development/chat-history-content-summaries.md) (3500+ lines)
-- 🎨 **UI Enhancements** - New conversation history sidebar and enhanced source cards
-
-### October 17, 2025 (Morning Session)
-- ✅ **Mobile Responsive Layout** - Complete mobile optimization
-  - Auto-close sidebar after adding files/URLs on mobile
-  - Touch-friendly interactions (44px minimum touch targets)
-  - Responsive message bubbles (85% width on mobile)
-  - Mobile-optimized padding and spacing
-  - iOS Safari input zoom prevention (16px font-size)
-  - Smooth momentum scrolling on iOS
-  - Enhanced viewport and theme-color meta tags
-  - Consistent focus states for accessibility
-- 📚 **Documentation** - Added [mobile-responsive-layout.md](./docs/04-development/mobile-responsive-layout.md) (1000+ lines)
-
-### October 13, 2025
-- ✅ **Error Boundaries** - Graceful error handling with recovery
-  - React Error Boundaries wrap critical sections
-  - Custom fallback UI for different components
-  - Error logging with localStorage persistence
-  - Automatic recovery with resetKeys
-  - Next.js error.tsx for SSR errors
-  - Export error logs for debugging
-- ✅ **UI Layout Improvements** - Better screen space utilization
-  - Wider sidebar (20rem)
-  - Centered content with max-width
-  - Responsive padding (mobile to desktop)
-  - Enhanced source cards with hover states
-  - Better message bubble sizing
-- ✅ **Input Validation** - Comprehensive validation with security features
-  - File size limits (10MB max)
-  - URL validation (SSRF/XSS protection)
-  - Content length limits (500K chars)
-  - Detailed error messages
-- ✅ **Persistence Layer** - Auto-save messages, sources, and themes to localStorage
-- ✅ **Response Streaming** - Real-time AI response with animated cursor
-- ✅ **Clear Data Option** - Added "Clear All Data" in settings menu
-- ✅ **Welcome Back Message** - Shows restored data count on load
-- 📚 **Documentation** - Added [error-handling.md](./docs/04-development/error-handling.md), [input-validation.md](./docs/04-development/input-validation.md), and [persistence-streaming-implementation.md](./docs/04-development/persistence-streaming-implementation.md)
-
-### October 7, 2025
-- ✅ **Testing Infrastructure** - Jest + Playwright setup (65+ tests)
-- ✅ **Theme Toggle** - Quick toggle with Ctrl+Shift+T shortcut
-- ✅ **Documentation Reorganization** - 31 files, ~9,000 lines organized
-
----
-
-**Last Updated:** October 30, 2025
+**Last Updated:** November 4, 2025
