@@ -121,26 +121,29 @@ export default function Home() {
   // Auto-save conversation when messages or sources change
   useEffect(() => {
     if (isLoaded && !isLoadingConversationRef.current) { // Don't save while loading
-      // Save if we have messages OR if we have a conversation ID (empty conversation with title)
-      if (messages.length > 0 || currentConversationId) {
-        // If we don't have a current conversation ID, create new one with auto-generated title
+      // Only save when we have actual content (messages)
+      // Don't trigger on currentConversationId changes (that happens when loading)
+      if (messages.length > 0) {
         if (!currentConversationId) {
+          // Create new conversation with auto-generated title
           const conversation = createConversation(messages, files, aiTheme || undefined);
           setCurrentConversationIdState(conversation.id);
           setCurrentConversationId(conversation.id);
-          setConversationTitle(conversation.title); // Set auto-generated title
+          setConversationTitle(conversation.title);
           saveConversation(conversation);
         } else {
-          // Update existing conversation with current ID and title from ref
+          // Update existing conversation - don't update timestamp (only happens when user sends message)
           const conversation = createConversation(messages, files, aiTheme || undefined, conversationTitleRef.current);
           conversation.id = currentConversationId;
-          saveConversation(conversation, false); // Don't update timestamp in auto-save - only when user sends messages
+          saveConversation(conversation, false);
         }
       }
     }
-    // Note: conversationTitle is NOT in dependencies because title updates are handled by handleTitleChange
+    // Note: conversationTitle and currentConversationId are NOT in dependencies
+    // - conversationTitle updates are handled by handleTitleChange
+    // - currentConversationId changes happen during loads (we don't want to trigger saves then)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages, files, aiTheme, currentConversationId, isLoaded]);
+  }, [messages, files, aiTheme, isLoaded]);
 
   const handleNewConversation = () => {
     // Save current conversation before creating new one
@@ -269,18 +272,16 @@ export default function Home() {
       onComplete: (fullText) => {
         // Add the complete message to history
         const aiMessage: Message = { id: aiMessageId, role: 'ai', content: fullText };
-        setMessages((prev) => {
-          const newMessages = [...prev, aiMessage];
-          // Explicitly save with timestamp update when conversation actually has new content
-          if (currentConversationId) {
-            const conversation = createConversation(newMessages, files, aiTheme || undefined, conversationTitleRef.current);
-            conversation.id = currentConversationId;
-            saveConversation(conversation, true); // Update timestamp for new messages
-          }
-          return newMessages;
-        });
+        setMessages((prev) => [...prev, aiMessage]);
         setStreamingMessageId(null);
         setPending(false);
+        
+        // Explicitly save with timestamp update when conversation has new content
+        if (currentConversationId) {
+          const conversation = createConversation([...messages, userMessage, aiMessage], files, aiTheme || undefined, conversationTitleRef.current);
+          conversation.id = currentConversationId;
+          saveConversation(conversation, true); // Update timestamp for new messages
+        }
       },
       onError: (error) => {
         toast({
