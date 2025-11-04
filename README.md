@@ -32,6 +32,27 @@ An intelligent AI-powered chat application built with Next.js 15 and Google Gemi
 
 ## 🚀 Recent Updates
 
+### November 4, 2025 - Major Test Coverage Improvements 🎯
+- ✅ **Test Coverage: 63.29% → 66.92%** (+3.63%) - Core business logic now has 95%+ coverage
+  - **Storage Tests (PR #26):** `lib/storage.ts` 69.14% → 97.14% (+28%)
+    - 45 comprehensive tests for localStorage utilities
+    - Tests: messages, sources, AI themes, conversations, bulk operations
+    - Full coverage of CRUD operations, pin/unpin, sorting logic
+  
+  - **Validation Tests (PR #27):** `lib/validation.ts` 71.95% → 95.85% (+23.9%)
+    - 61 comprehensive tests for security and input validation
+    - Tests: URL validation (SSRF, XSS protection), message/content length
+    - File name security, HTML sanitization, utility functions
+  
+  - **Error Logger Tests (PR #27):** `lib/error-logger.ts` 35.95% → 99.25% (+63.3%)
+    - 50 comprehensive tests for error tracking and logging
+    - Tests: error levels, history management, persistence, formatting
+    - Error type detection (network, timeout), user-friendly messages
+  
+  - **Total Impact:** 156 new tests added (532 → 688 tests)
+  - **Methodology:** Test-Driven Development (TDD) with edge case focus
+  - All PRs merged with CI validation ✅
+
 ### November 4, 2025 - Stable Conversation Sorting & Pin Feature ⭐
 - ✅ **Fixed Conversation Sorting** - Conversations no longer rearrange when selected
   - **Root Cause:** `saveConversation()` was updating `updatedAt` timestamp even when just loading from history
@@ -54,7 +75,6 @@ An intelligent AI-powered chat application built with Next.js 15 and Google Gemi
   - **Impact:** Instant UI updates when changing conversation titles (no more page refresh needed)
   - **Testing:** TDD methodology with 3 new tests, all 511 tests passing ✅
   - **Branch:** `fix/conversation-title-ui-update`
-  - **Lesson:** Previous 7 fix attempts modified state management, but bug was in component display logic
 
 ### November 2, 2025 - Enhanced Conversation Management
 - ✅ **Save Empty Conversations** - You can now save and name conversations even without messages or files
@@ -69,33 +89,6 @@ An intelligent AI-powered chat application built with Next.js 15 and Google Gemi
   - `.docx` - Microsoft Word documents with extracted text
 - ✅ **Updated welcome message** to reflect all 5 supported file types
 - ✅ **Comprehensive testing** with Jest and Playwright for all file formats
-
-  - **🎨 AI-Powered Theme Generation:** Dynamically create and apply color themes with AI-generated background images powered by Gemini 2.5 Flash Image
-- **🌙 Dark/Light Mode:** Quick theme toggle with keyboard shortcut (`Ctrl+Shift+T`)
-- **📱 Responsive Design:** Modern, responsive UI that works across different screen sizes
-- **✅ Comprehensive Testing:** 519 tests with Jest and Playwright (62.21% coverage) with CI/CD pipeline
-
-## 📋 Recent Updates
-
-### November 2, 2025 - Enhanced File Type Support ✨
-- ✅ **5 File Types Supported** - Expanded from 2 to 5 supported file formats
-  - Added .md (Markdown) - preserves formatting
-  - Added .csv (CSV) - parses and formats data with headers
-  - Added .docx (Word Documents) - extracts text content
-  - Libraries: mammoth (DOCX), papaparse (CSV)
-  - 40+ new tests with comprehensive validation
-  - Flexible MIME type handling for browser compatibility
-  - All 519 tests passing
-  - Branch: `feat/support-more-file-types`
-
-### November 2, 2025 - Test Coverage Improvement ✨
-- ✅ **Test Coverage to 62.21%** - Systematic testing using TDD methodology (Phase 1-2 of 4)
-  - Added 36 new tests (446 → 482 total)
-  - Coverage: 60.98% → 62.21% statements (+1.23%)
-  - Components tested: theme-provider (100% coverage), error page (100% coverage)
-  - 100% coverage achieved on theme-provider.tsx and error.tsx
-  - Comprehensive error page testing (25 tests covering rendering, logging, interactions, dev/prod modes, edge cases)
-  - Branch: `feat/reach-65-percent-coverage` - Target 65% coverage (2.79% remaining)
 
 ## �🚀 Getting Started
 
@@ -196,35 +189,36 @@ Comprehensive documentation is available in the `docs/` folder:
 
 ## 🎯 Project Status
 
-### ✅ What's Working (Nov 2, 2025)
+### ✅ What's Working (Nov 4, 2025)
 
 - **Chat Interface** - Full conversational AI with context from sources
-- **Chat History** - Save, load, and manage multiple conversations
+- **Chat History** - Save, load, and manage multiple conversations with auto-generated titles
+- **Pin Conversations** - Star important conversations to keep them at the top ⭐ NEW
 - **Conversation Search** - Search by title or message content with debounced filtering
 - **Search Filters** - Filter conversations by date range, source type
-- **Testing** - 482 tests (469 passing, 13 skipped), 62.21% coverage, CI/CD pipeline
-- **Keyboard Shortcuts** - Quick navigation with Ctrl+N, Ctrl+K, Ctrl+E, Ctrl+Shift+T ✨ NEW
-- **Message Editing** - Edit and regenerate AI responses ✨ NEW
-- **Conversation Tags** - Organize with custom color-coded tags ✨ NEW
+- **Testing** - 688 tests (675 passing, 13 skipped), 66.92% coverage, CI/CD pipeline ✨ NEW
+  - Core business logic: 95%+ coverage (storage, validation, error-logger)
+- **Keyboard Shortcuts** - Quick navigation with Ctrl+N, Ctrl+K, Ctrl+E, Ctrl+Shift+T
+- **Message Editing** - Edit and regenerate AI responses
+- **Conversation Tags** - Organize with custom color-coded tags
 - **Content Summaries** - AI-generated summaries for files and URLs
 - **Export Conversations** - Download chat history as TXT or PDF
 - **Response Streaming** - Real-time token-by-token AI responses
 - **Data Persistence** - Auto-save/restore messages, sources, themes, and conversations
-- **Input Validation** - Comprehensive security and data validation
+- **Input Validation** - Comprehensive security and data validation (SSRF, XSS protection)
+- **Error Logging** - Centralized error tracking with persistence and user-friendly messages
 - **Error Boundaries** - Graceful error handling and crash prevention
 - **Mobile Responsive** - Optimized for all devices (320px - 1920px+)
-- **File Upload** - `.txt` and `.pdf` file processing with size limits (10MB)
+- **File Upload** - `.txt`, `.pdf`, `.md`, `.csv`, `.docx` file processing (10MB limit) ✨ NEW
 - **URL Scraping** - Website content extraction with SSRF protection
 - **Source Management** - Add/remove files and URLs with summary generation
 - **Theme System** - Dark/light mode + AI-generated themes with optimized fonts
-- **Testing** - 296 tests, 53.14% coverage, CI/CD pipeline
-- **CI/CD** - ESLint, Jest, and build checks on every push
+- **CI/CD** - TypeScript, ESLint, Jest, and build checks on every push
 
 ### 🚧 Known Limitations
 
 - No user authentication (single-user local app)
 - No swipe gestures for sidebar (future enhancement)
-- Limited to 2 file types (txt, pdf - 10MB max)
 - 5MB localStorage limit (can store ~1000 messages)
 - Content limits (500K chars per file, 100K chars per message)
 
@@ -253,8 +247,11 @@ See **[Development Issue Log](./docs/04-development/dev-issue-log.md)** for deta
 14. ~~**Conversation Tags**~~ ✅ COMPLETED (Oct 30, 2025) - Organize with custom tags
 
 ### Low Priority (Future Features)
-18. **User Authentication** - Multi-user support with accounts
-19. **More File Types** - `.docx`, `.csv`, `.md`, images support
+15. **User Authentication** - Multi-user support with accounts
+16. **Cloud Storage** - Sync conversations across devices
+17. **More AI Models** - Support for Claude, GPT-4, etc.
+18. **Voice Input** - Speech-to-text for messages
+19. **Collaborative Chats** - Share conversations with others
 20. **Multi-Model Support** - Switch between AI models
 21. **Collaborative Features** - Share conversations, team workspaces
 22. **Voice Integration** - Speech-to-text and text-to-speech
