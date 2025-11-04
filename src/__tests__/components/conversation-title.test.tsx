@@ -19,9 +19,10 @@ describe('ConversationTitle', () => {
       expect(screen.getByText('Test Conversation')).toBeInTheDocument();
     });
 
-    it('displays "New Conversation" for new conversations', () => {
+    it('displays actual title prop even for new conversations', () => {
+      // Fixed: Now displays the actual title prop, not hardcoded "New Conversation"
       render(<ConversationTitle {...defaultProps} isNewConversation={true} />);
-      expect(screen.getByText('New Conversation')).toBeInTheDocument();
+      expect(screen.getByText('Test Conversation')).toBeInTheDocument();
     });
 
     it('shows edit button on hover (non-new conversations)', () => {
@@ -422,4 +423,34 @@ describe('ConversationTitle', () => {
       expect(input.value).toBe('External Update');
     });
   });
+
+  describe('Custom Title Display (Bug Fix)', () => {
+    it('displays custom title even when isNewConversation is true and has no messages', () => {
+      // BUG: When a new conversation gets a custom title but has no messages yet,
+      // it should show the custom title, not "New Conversation"
+      render(<ConversationTitle {...defaultProps} title="My Custom Title" isNewConversation={true} />);
+      
+      // Should show custom title, not "New Conversation"
+      expect(screen.getByText('My Custom Title')).toBeInTheDocument();
+      expect(screen.queryByText('New Conversation')).not.toBeInTheDocument();
+    });
+
+    it('displays "New Conversation" only when title is actually "New Conversation"', () => {
+      render(<ConversationTitle {...defaultProps} title="New Conversation" isNewConversation={true} />);
+      expect(screen.getByText('New Conversation')).toBeInTheDocument();
+    });
+
+    it('updates from "New Conversation" to custom title in real-time', () => {
+      const { rerender } = render(
+        <ConversationTitle {...defaultProps} title="New Conversation" isNewConversation={true} />
+      );
+      expect(screen.getByText('New Conversation')).toBeInTheDocument();
+
+      // User sets custom title - should update immediately
+      rerender(<ConversationTitle {...defaultProps} title="Research Notes" isNewConversation={true} />);
+      expect(screen.getByText('Research Notes')).toBeInTheDocument();
+      expect(screen.queryByText('New Conversation')).not.toBeInTheDocument();
+    });
+  });
 });
+

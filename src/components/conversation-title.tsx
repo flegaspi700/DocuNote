@@ -57,7 +57,9 @@ export function ConversationTitle({ title, onTitleChange, isNewConversation }: C
     }
   };
 
-  const displayTitle = isNewConversation ? 'New Conversation' : title;
+  // Always display the actual title prop - don't override with "New Conversation"
+  // The parent component determines what title to show
+  const displayTitle = title;
 
   if (isEditing) {
     return (
