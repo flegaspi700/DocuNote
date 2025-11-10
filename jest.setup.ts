@@ -82,6 +82,25 @@ jest.mock('pdfjs-dist', () => ({
   version: '4.0.0',
 }));
 
+// Mock jsPDF
+jest.mock('jspdf', () => ({
+  jsPDF: jest.fn().mockImplementation(() => ({
+    text: jest.fn(),
+    setFontSize: jest.fn(),
+    setFont: jest.fn(),
+    setTextColor: jest.fn(),
+    save: jest.fn(),
+    addPage: jest.fn(),
+    splitTextToSize: jest.fn((text: string) => [text]),
+    internal: {
+      pageSize: {
+        getWidth: jest.fn(() => 210),
+        getHeight: jest.fn(() => 297),
+      },
+    },
+  })),
+}));
+
 // Suppress console errors and warnings in tests
 const originalError = console.error;
 const originalWarn = console.warn;

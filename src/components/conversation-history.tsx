@@ -61,6 +61,7 @@ interface ConversationHistoryProps {
   searchInputRef?: RefObject<HTMLInputElement>;
   showExportDialog?: boolean;
   onCloseExportDialog?: () => void;
+  activeTab: string;
 }
 
 export function ConversationHistory({
@@ -68,6 +69,7 @@ export function ConversationHistory({
   onLoadConversation,
   currentConversationId,
   searchInputRef,
+  activeTab,
 }: ConversationHistoryProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -93,10 +95,12 @@ export function ConversationHistory({
     hasActiveFilters,
   } = useConversationSearch(tagFilteredConversations, { debounce: 300, filters });
 
-  // Load conversations on mount
+  // Load conversations on mount and when activeTab changes
   useEffect(() => {
     setConversations(loadConversations());
-  }, []);
+    // Clear search when switching tabs
+    clearSearch();
+  }, [activeTab, clearSearch]);
 
   // Refresh conversations when currentConversationId changes
   useEffect(() => {
