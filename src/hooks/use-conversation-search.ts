@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import type { Conversation } from '@/lib/types';
 
 export type DateRangeFilter = 'all' | 'today' | 'last-7-days' | 'last-30-days' | 'custom';
@@ -190,9 +190,9 @@ export function useConversationSearch(
     activeFilters.maxMessages
   ]);
 
-  const clearSearch = () => {
+  const clearSearch = useCallback(() => {
     setSearchQuery('');
-  };
+  }, []);
 
   return {
     filteredConversations,
