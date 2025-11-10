@@ -50,7 +50,7 @@ jobs:
         run: npm run build
         env:
           # Provide API key if available, otherwise use dummy for build
-          GOOGLE_GENAI_API_KEY: ${{ secrets.GOOGLE_GENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY || 'ci-build-placeholder' }}
       
       # ✅ Step 8: Upload test coverage report
       - name: 📊 Upload coverage report
