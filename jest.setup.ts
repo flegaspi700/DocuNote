@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 
 // Mock environment variables
-process.env.GOOGLE_GENAI_API_KEY = 'test-api-key-mock';
+process.env.GEMINI_API_KEY = 'test-api-key-mock';
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
